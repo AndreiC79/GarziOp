@@ -1,0 +1,16 @@
+/config/config.php
+/storage/reports/*
+!/storage/reports/.gitkeep
+/storage/backups/*
+!/storage/backups/.gitkeep
+/storage/imports/*
+!/storage/imports/.gitkeep
+/storage/exports/*
+!/storage/exports/.gitkeep
+/storage/security/*
+!/storage/security/.gitkeep
+/storage/recovery-request.json
+/storage/*.log
+/storage/logs/*
+!/storage/logs/.gitkeep
+/public/exports/program_operatii_*

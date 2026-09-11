@@ -1,0 +1,13 @@
+ACTUALIZARE INTERN - V7.6 - 17.08.2026
+
+1. Faceti backup fisierelor si bazei de date de productie.
+2. Dezarhivati INTERN_UPDATE_FTP_2026-08-17_V7.6.zip.
+3. Urcati prin FTP continutul arhivei peste radacina aplicatiei, pastrand structura directoarelor.
+4. Nu stergeti config/config.php si nu modificati baza de date. V7.6 nu contine migrari SQL.
+5. Verificati dreptul de scriere PHP pentru storage/config, storage/exports, storage/backups si storage/logs.
+6. Configurati stagiile in storage/config/resident_stages.json conform docs/CONFIGURARE_STAGII_REZIDENTI.md.
+7. Pentru backup automat urmati docs/BACKUP_SERVER_SPITAL.md si folositi un token tehnic dedicat.
+8. Autentificati-va si verificati versiunea 2026.08.17.7.6 in meniul lateral sau public/version.php.
+9. Testati Overview in mod Saptamana, mutarea unei operatii, un cont rezident si exportul PDF.
+
+Rollback: restaurati backupul fisierelor. Schema SQL nu este schimbata.

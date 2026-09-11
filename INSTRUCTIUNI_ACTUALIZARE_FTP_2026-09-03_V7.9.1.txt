@@ -1,0 +1,10 @@
+ACTUALIZARE PLATFORMA INTERNA - V7.9.1
+
+1. Faceti backup fisierelor si bazei de date existente.
+2. Incarcati prin FTP directoarele app, public, database si docs peste instalarea existenta.
+3. NU inlocuiti config/config.php si NU stergeti directorul storage.
+4. Nu este necesara modificarea sau reimportarea bazei de date.
+5. Dupa upload verificati versiunea 2026.09.03.7.9.1.
+6. Testati stergerea unei notificari citite si dialogul Operatii de repartizat pe desktop si mobil.
+
+Pachetul este cumulativ si include toate modificarile V7.9.

@@ -1,0 +1,13 @@
+ACTUALIZARE INTERN V7.8.1
+
+1. Faceti backup fisierelor existente.
+2. Dezarhivati continutul peste directorul aplicatiei de pe server.
+3. Pastrati config/config.php existent.
+4. Nu este necesara nicio modificare SQL.
+5. Verificati versiunea FTP V7.8.1 in aplicatie.
+
+MODIFICARE
+- Coloana Zi din PDF-ul garzilor a fost redusa de la 40 mm la 14 mm.
+- Spatiul recuperat este impartit automat intre coloanele liniilor OG, ATI si NN selectate.
+- Sarbatorile raman evidentiate prin culoarea de fundal a randului.
+- Antetele sunt simplificate: OG Linia N, ATI si NN Linia N.

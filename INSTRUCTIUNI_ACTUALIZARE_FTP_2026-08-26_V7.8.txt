@@ -1,0 +1,16 @@
+ACTUALIZARE INTERN V7.8
+
+1. Faceti backup fisierelor si bazei de date existente.
+2. Dezarhivati continutul peste directorul aplicatiei de pe server.
+3. Pastrati fisierul config/config.php existent.
+4. Nu rulati migrari SQL: V7.8 nu modifica structura bazei de date.
+5. Verificati in aplicatie afisarea versiunii FTP V7.8.
+
+VERIFICARI RECOMANDATE
+- Calendar ProgOp: zi blocata cu fundal rosu si zi de garda cu fundal mov.
+- Operatie creata pentru alt medic: autorul poate edita, muta si sterge.
+- Dupa stergerea unei operatii, numerotarea salii este consecutiva.
+- Garzi: selectarea medicului coloreaza intreaga zi.
+- Garzi: drag-and-drop functioneaza intre liniile aceleiasi zile; OG L1 ramane protejata.
+- Dashboard: medicii de garda astazi apar dupa citat.
+- Centrul de validare apare numai pentru Superuser si este inchis initial.

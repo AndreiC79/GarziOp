@@ -1,0 +1,11 @@
+ACTUALIZARE PLATFORMA INTERNA - V7.10.2
+
+1. Faceti backup fisierelor si bazei de date existente.
+2. Incarcati prin FTP directoarele app, public, database si docs peste instalarea existenta.
+3. NU inlocuiti config/config.php si NU stergeti directorul storage.
+4. Nu este necesara modificarea sau reimportarea bazei de date.
+5. Directorul storage/config trebuie sa permita scrierea de catre PHP.
+6. In Administrare alegeti lunar numarul liniilor deschise si bifati separat, pentru fiecare specialitate, daca doriti o linie suplimentara conditionata.
+7. Dupa upload verificati versiunea 2026.09.11.7.10.2.
+
+Pachetul este cumulativ si include V7.10, V7.10.1 si toate versiunile anterioare.

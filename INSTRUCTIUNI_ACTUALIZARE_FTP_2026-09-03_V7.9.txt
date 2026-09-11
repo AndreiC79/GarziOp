@@ -1,0 +1,13 @@
+ACTUALIZARE PLATFORMA INTERNA - V7.9
+
+1. Faceti un backup al fisierelor curente si al bazei de date.
+2. Dezarhivati pachetul local.
+3. Incarcati prin FTP directoarele app, public, database si docs peste instalarea existenta.
+4. Incarcati config/config.example.php, dar NU inlocuiti config/config.php de pe server.
+5. NU stergeti directorul storage si continutul lui. Aplicatia va crea automat storage/config/ati_room_assignments.json la prima salvare a planificarii ATI.
+6. Nu este necesara nicio modificare a structurii bazei de date si nu trebuie reimportat database/schema.sql.
+7. Verificati dreptul de scriere al serverului PHP asupra directoarelor storage/config si storage/backups.
+8. Dupa upload, autentificati-va ca Superuser si verificati versiunea 2026.09.03.7.9.
+9. In Program operator, verificati: Repartizare ATI, aprobarea EXTRA cu motiv de refuz, marcajele calendarului si Overview.
+
+Pachetul nu contine config/config.php, parole, baza de date sau fisierele JSON existente din storage.ordinea 

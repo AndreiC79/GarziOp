@@ -1,0 +1,12 @@
+UPDATE CUMULATIV INTERN V7.7.1
+
+Contine toate modificarile sesiunii din 17.08.2026. Nu modifica schema SQL.
+Urcati continutul peste aplicatie si pastrati config/config.php.
+PHP trebuie sa poata scrie in storage/config, storage/backups si storage/logs.
+
+Pentru backup automat:
+1. In Administrare deschideti Versiuni si backup.
+2. Contul tehnic selectat trebuie sa aiba API Full si dreptul admin.reports.
+3. Apasati Genereaza token pentru backup si salvati imediat tokenul si scriptul afisat.
+4. Instalati scriptul pe serverul spitalului si programati-l in Windows Task Scheduler.
+5. Regenerati tokenul inainte de expirare.

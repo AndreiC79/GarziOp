@@ -1,0 +1,57 @@
+ACTUALIZARE PLATFORMA INTERNA - FTP V7.2
+========================================
+
+VERSIUNE
+--------
+2026.08.11.7.2
+
+TIP ACTUALIZARE
+---------------
+Pachet cumulativ: include V7, V7.1 si modificarile V7.2.
+Actualizarea inlocuieste numai fisierele aplicatiei si nu modifica structura sau continutul bazei de date.
+
+IMPORTANT
+---------
+- Nu importati niciun fisier SQL.
+- Nu stergeti instalarea existenta.
+- Nu suprascrieti si nu stergeti config/config.php de pe server.
+- Nu stergeti continutul folderului storage de pe server.
+- Folositi suprascriere FTP, nu sincronizare cu stergerea fisierelor absente.
+
+PASI FTP
+--------
+1. Faceti o copie de siguranta a fisierelor existente ale aplicatiei.
+2. Dezarhivati INTERN_UPDATE_FTP_2026-08-11_V7.2.zip pe calculator.
+3. Deschideti prin FTP folderul-radacina care contine directoarele app, public, config si storage.
+4. Incarcati continutul arhivei in acel folder, pastrand structura directoarelor.
+5. Confirmati suprascrierea tuturor fisierelor existente.
+6. Nu folositi o optiune FTP care sterge fisierele absente din arhiva.
+7. Pastrati config/config.php existent si toate fisierele din storage.
+8. Verificati ca directoarele storage/backups, storage/exports, storage/imports, storage/logs si storage/security raman inscriptibile de PHP.
+9. Reincarcati fortat site-ul cu Ctrl+F5 si autentificati-va cu un cont existent.
+
+VERIFICARE RAPIDA
+-----------------
+1. Versiunea afisata la login si in bara aplicatiei este 2026.08.11.7.2 / FTP V7.2.
+2. In Program operator, Adauga programare afiseaza Pacienta, Diagnostic, Tip operatie, Medic si Observatii.
+3. Cauta pacienta gaseste programari din orice data si pentru orice medic.
+4. Exportul PDF al Programului operator afiseaza diagnosticul si observatiile completate.
+5. Dashboardul afiseaza numarul garzilor ramase luna aceasta, datele lor si prima garda din luna urmatoare.
+6. In Garzi, comutatorul Toate liniile OG + ATI + NN afiseaza cele trei specialitati in acelasi calendar.
+7. Un click pe o linie ATI sau NN din vederea completa activeaza specialitatea corespunzatoare si lista corecta de medici.
+8. Incercarea de a pune acelasi medic in doua zile consecutive este refuzata cu un mesaj explicit, indiferent de linie sau specialitate.
+9. In Administrare > Jurnal, cautarile dupa nume, operatie, garda, schimb, preluare sau stergere returneaza actiunile relevante.
+10. In Administrare > Acces API / AI, tokenurile active pot fi revocate, iar cele inactive pot fi sterse.
+11. In Administrare > Statistici si rapoarte, Activitate ziua precedenta afiseaza numai operatiile bifate ca efectuate, pe medic si tip, plus numarul EXTRA.
+12. O operatie EXTRA adaugata in saptamana curenta apare gri si genereaza notificari pentru cucu.andrei si traian.maier.
+13. Din notificare, Aproba o face rosie cu marcaj EXTRA; Nu aproba o pastreaza gri cu marcaj NEAPROBATA.
+14. Verificati optional public/version.php; campul version trebuie sa fie 2026.08.11.7.2.
+
+REVENIRE
+--------
+Restaurati prin FTP copia de siguranta a fisierelor suprascrise. Baza de date nu necesita restaurare, deoarece pachetul nu ruleaza migrari si nu modifica schema.
+
+SIGURANTA
+---------
+- Arhiva nu contine config.php, parole, dump SQL, backupuri sau exporturi cu date medicale.
+- MANIFEST_SHA256.txt permite verificarea integritatii fisierelor.

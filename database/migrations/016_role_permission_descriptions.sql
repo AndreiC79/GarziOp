@@ -1,0 +1,33 @@
+UPDATE roles SET description = CASE code
+    WHEN 'platform_admin' THEN 'Acces complet: utilizatori, drepturi, loguri, tokenuri, garzi, Program operator si rapoarte.'
+    WHEN 'super_admin' THEN 'Acces complet operational si administrativ; poate fi administrat sau eliminat de Administratorul platformei.'
+    WHEN 'doctor_admin' THEN 'Poate corecta orice garda si poate crea, modifica, muta sau sterge orice operatie; fara utilizatori, loguri ori tokenuri.'
+    WHEN 'doctor_standard' THEN 'Vede garzile, gestioneaza schimburile in care este implicat si isi creeaza sau modifica propriile operatii.'
+    WHEN 'guards_admin' THEN 'Administreaza personalul si ordinea, genereaza, publica, restaureaza si corecteaza programul de garzi.'
+    WHEN 'doctor_og' THEN 'Rol OG vechi, echivalent functional cu Medic standard; pastrat pentru conturile existente.'
+    WHEN 'doctor_ati' THEN 'Vede si gestioneaza garzile proprii; are control complet asupra Programului operator.'
+    WHEN 'doctor_nn' THEN 'Vede garzile si gestioneaza garzile proprii; Programul operator este doar pentru vizualizare.'
+    WHEN 'assistant_editor' THEN 'Vede garzile si poate crea, modifica, muta sau sterge operatii; poate vizualiza si descarca rapoarte.'
+    WHEN 'assistant_viewer' THEN 'Poate doar vedea garzile si Programul operator si poate tipari sau descarca rapoarte.'
+    ELSE description END;
+
+UPDATE permissions SET description = CASE code
+    WHEN 'guards.view' THEN 'Poate deschide calendarele si listele de garzi, fara a modifica programul.'
+    WHEN 'guards.manage_people' THEN 'Poate administra medicii eligibili si ordinea folosita la generarea OG Linia 1.'
+    WHEN 'guards.generate' THEN 'Poate reconstrui un draft OG Linia 1 pentru perioada si medicul de inceput alese.'
+    WHEN 'guards.publish' THEN 'Poate transforma draftul de garzi in program vizibil utilizatorilor.'
+    WHEN 'guards.restore' THEN 'Poate restaura o versiune anterioara salvata a programului de garzi.'
+    WHEN 'guards.own_changes' THEN 'Poate schimba, ceda sau prelua garzi conform regulilor si implicarii proprii.'
+    WHEN 'guards.admin_correction' THEN 'Poate adauga, inlocui sau sterge administrativ garzi, inclusiv pentru alti medici.'
+    WHEN 'progop.view' THEN 'Poate vedea calendarul, salile si operatiile programate.'
+    WHEN 'progop.create' THEN 'Poate adauga o operatie noua in Programul operator.'
+    WHEN 'progop.edit_own' THEN 'Poate modifica sau sterge operatiile pe care le-a programat ori care ii apartin.'
+    WHEN 'progop.manage_all' THEN 'Poate modifica, muta sau sterge orice operatie, indiferent cine a programat-o.'
+    WHEN 'progop.manage_settings' THEN 'Poate configura salile si nomenclatorul tipurilor de operatii.'
+    WHEN 'admin.users' THEN 'Poate crea, activa, bloca si modifica utilizatori si parole temporare.'
+    WHEN 'admin.permissions' THEN 'Poate atribui roluri si drepturi individuale si poate administra tokenurile API.'
+    WHEN 'admin.audit' THEN 'Poate vedea jurnalul complet si utilizatorii conectati.'
+    WHEN 'reports.generate' THEN 'Poate genera rapoarte lunare si anuale din datele aplicatiei.'
+    WHEN 'reports.download' THEN 'Poate descarca sau tipari rapoartele disponibile.'
+    WHEN 'reports.archive_logs' THEN 'Poate arhiva raportul anual si apoi sterge controlat logurile aferente.'
+    ELSE description END;

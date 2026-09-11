@@ -1,0 +1,18 @@
+ACTUALIZARE INTERN V7.7.2
+
+1. Faceti o copie de siguranta a fisierelor existente.
+2. Dezarhivati continutul arhivei direct peste directorul aplicatiei de pe server.
+3. Pastrati configurarea existenta a serverului si baza de date curenta.
+4. Nu este necesara nicio modificare SQL pentru aceasta versiune.
+5. Autentificati-va si verificati versiunea FTP V7.7.2 in subsolul paginii.
+
+VERIFICARI RECOMANDATE
+- Administrator platforma si Superuser vad si pot deschide Administrare.
+- Medicii, rezidentii, asistentele si celelalte roluri nu vad Administrare.
+- Accesarea manuala a index.php?module=admin de catre un cont neautorizat revine la Dashboard.
+- Endpoint-urile administrative raspund cu acces interzis pentru rolurile neautorizate.
+- In Administrare > Versiuni si backup, copiile JSON pot fi descarcate si sterse individual.
+
+IMPORTANT
+- Actualizarea nu modifica structura bazei de date.
+- Stergerea unei copii JSON este definitiva si este inregistrata in jurnal.

@@ -1,0 +1,10 @@
+ACTUALIZARE INTERN - V7.6.1
+
+Urcati continutul arhivei peste aplicatie. Nu modificati config/config.php si nu rulati SQL: schema bazei de date ramane neschimbata.
+
+Verificari dupa upload:
+1. Versiunea afisata este 2026.08.17.7.6.1.
+2. In Program operator, o operatie poate fi trasa intre sali sau peste alta operatie pentru reordonare.
+3. In Administrare exista presetul Medic rezident.
+4. Un utilizator cu categoria Rezident vede butonul Stagiul meu si poate salva intervalul.
+5. Directorul storage/config trebuie sa poata fi scris de PHP.

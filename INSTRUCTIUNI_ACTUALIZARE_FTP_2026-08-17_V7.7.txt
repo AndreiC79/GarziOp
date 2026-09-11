@@ -1,0 +1,13 @@
+ACTUALIZARE CUMULATIVA INTERN - V7.7
+
+Aceasta arhiva cuprinde toate modificarile realizate in sesiunea din 17.08.2026, inclusiv corectiile V7.6-V7.6.3.
+
+1. Faceti backup fisierelor aplicatiei.
+2. Urcati continutul arhivei peste radacina aplicatiei.
+3. Nu suprascrieti config/config.php cu alta configuratie.
+4. Nu rulati SQL. Structura bazei de date nu este modificata.
+5. Acordati PHP drept de scriere in storage/config pentru perioadele rezidentilor.
+6. Verificati public/version.php: versiunea trebuie sa fie 2026.08.17.7.7.
+7. Testati Dashboard, Stagiul meu, lista De repartizat, drag-and-drop in Program operator si Overview, PDF si backupul prin token.
+
+Rollback: restaurati copia fisierelor. Nu este necesar rollback de baza de date.
