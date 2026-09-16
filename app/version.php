@@ -3,14 +3,18 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.16.7.11.0',
-    'release' => 'FTP V7.11.0',
+    'version' => '2026.09.16.7.11.1',
+    'release' => 'FTP V7.11.1',
     'released_at' => '2026-09-16',
-    'summary' => 'V7.11 introduce panoul tactil dedicat blocului operator.',
+    'summary' => 'V7.11.1 simplifica panoul tactil si integreaza complet contul Dashboard in Administrare.',
     'changes' => [
+        'Overview foloseste o singura zona de progres, cu slider si emoticoane care reflecta progresul zilei.',
+        'Panoul tactil foloseste numai starile Programata, In sala si Efectuata; starea veche In desfasurare este afisata compatibil ca In sala.',
+        'Contul Dashboard poate fi folosit simultan pe mai multe ecrane sau dispozitive.',
+        'Rolul Dashboard sala de operatii este disponibil ca preset in Administrare, iar conturile tehnice fara medic asociat sunt vizibile si configurabile.',
         'Rolul Panou bloc operator are acces exclusiv la dashboardul tactil al salilor si este redirectionat automat dupa autentificare.',
         'Contul de panou poate consulta si opera numai programul de ieri, astazi si maine.',
-        'Operatiile folosesc starile Programata, Pacienta in sala, In desfasurare si Efectuata, fara modificarea structurii bazei de date.',
+        'Operatiile folosesc starile Programata, Pacienta in sala si Efectuata, fara modificarea structurii bazei de date.',
         'Ora estimata este optionala si poate fi completata sau eliminata direct din cardul operatiei.',
         'Operatiile EXTRA sunt portocalii, urgentele sunt rosii, iar operatiile efectuate sunt verzi.',
         'Urgentele pot fi introduse temporar cu identitatea pacientei in curs si urmeaza circuitul existent de aprobare EXTRA.',

@@ -1,0 +1,19 @@
+ACTUALIZARE V7.11.1 - SIMPLIFICARE PANOU BLOC OPERATOR
+
+1. Incarcati prin FTP continutul pachetului peste instalarea V7.11.0.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Nu exista modificari de structura a bazei de date si nu trebuie rulata nicio migrare noua.
+4. Goliti cache-ul browserului sau reincarcati fortat pagina dupa actualizare.
+5. Verificati accesul la public/progop-overview.php cu rolul Dashboard sala de operatii.
+
+MODIFICARI:
+- a fost eliminat cardul redundant Progres total;
+- bara zilnica include un slider cu emoticoane si progresul operatiilor;
+- starile disponibile sunt Programata, In sala si Efectuata;
+- contul dashboard permite sesiuni simultane pe mai multe dispozitive;
+- rolul Dashboard sala de operatii apare ca preset in Administrare;
+- conturile tehnice fara medic asociat apar in Personal si acces si pot fi resetate sau dezactivate.
+
+Cont local de test:
+username: dashboard
+parola temporara: 123412341234

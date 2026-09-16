@@ -51,6 +51,17 @@ function loadAdminConfiguration(PDO $db): never
          FROM people p LEFT JOIN users u ON u.person_id=p.id
          ORDER BY p.active DESC,p.specialty,p.last_name,p.first_name'
     )->fetchAll() : [];
+    if ($canManageUsers) {
+        $systemUsers = $db->query(
+            'SELECT -u.id id,"" first_name,"" last_name,
+                    CASE WHEN u.username="dashboard" THEN "Dashboard bloc operator" ELSE CONCAT("Cont sistem: ",u.username) END display_name,
+                    "" title,"Cont tehnic" professional_category,"SISTEM" specialty,0 rotation_position,
+                    1 active,0 guard_eligible,NULL notes,u.id user_id,u.username,u.status user_status,
+                    u.api_access_level,u.must_change_password,u.last_login_at,1 system_account
+             FROM users u WHERE u.person_id IS NULL ORDER BY u.username'
+        )->fetchAll();
+        $people = array_merge($people, $systemUsers);
+    }
     $userRoles = [];
     foreach ($canManageUsers ? $db->query('SELECT ur.user_id,r.code FROM user_roles ur JOIN roles r ON r.id=ur.role_id ORDER BY r.name') : [] as $row) {
         $userRoles[(int) $row['user_id']][] = $row['code'];
@@ -740,9 +751,11 @@ function saveUser(PDO $db, array $input): never
     $status = (string) ($input['status'] ?? 'active');
     $apiAccessLevel=(string)($input['api_access_level']??'none');
     $roles = array_values(array_unique(array_filter(array_map('strval', is_array($input['roles'] ?? null) ? $input['roles'] : []))));
-    if ($personId <= 0 || !preg_match('/^[a-z0-9._-]{3,100}$/', $username) || !in_array($status, ['active', 'inactive', 'locked'], true) || !in_array($apiAccessLevel,['none','read','schedule','full'],true)) {
+    $isDashboardAccount = in_array('operating_room_dashboard', $roles, true);
+    if ((!$isDashboardAccount && $personId <= 0) || !preg_match('/^[a-z0-9._-]{3,100}$/', $username) || !in_array($status, ['active', 'inactive', 'locked'], true) || !in_array($apiAccessLevel,['none','read','schedule','full'],true)) {
         apiError('Persoana, username-ul si starea contului nu sunt valide.');
     }
+    $storedPersonId = $isDashboardAccount ? null : $personId;
     if ($userId === (int) $apiUser['id'] && $status !== 'active') apiError('Nu iti poti dezactiva propriul cont.', 409);
     $roleIds = [];
     if ($roles) {
@@ -758,23 +771,23 @@ function saveUser(PDO $db, array $input): never
         if ($userId > 0) {
             $statement = $db->prepare('SELECT id,person_id,username,status FROM users WHERE id=:id FOR UPDATE'); $statement->execute(['id' => $userId]); $before = $statement->fetch();
             if (!$before) throw new DomainException('Contul nu a fost gasit.');
-            $params = ['person_id'=>$personId,'username'=>$username,'status'=>$status,'api_access_level'=>$apiAccessLevel,'id'=>$userId];
+            $params = ['person_id'=>$storedPersonId,'username'=>$username,'status'=>$status,'api_access_level'=>$apiAccessLevel,'id'=>$userId];
             $sql = 'UPDATE users SET person_id=:person_id,username=:username,status=:status,api_access_level=:api_access_level,failed_login_count=0,locked_until=NULL';
             if ($temporaryPassword !== '') { validateTemporaryPassword($temporaryPassword); $sql .= ',password_hash=:password_hash,must_change_password=1'; $params['password_hash'] = password_hash($temporaryPassword, PASSWORD_DEFAULT); }
             $db->prepare($sql . ' WHERE id=:id')->execute($params);
         } else {
             if ($temporaryPassword === '') $temporaryPassword = generateTemporaryPassword();
             validateTemporaryPassword($temporaryPassword);
-            $db->prepare('INSERT INTO users(person_id,username,password_hash,status,api_access_level,must_change_password) VALUES(:person_id,:username,:password_hash,:status,:api_access_level,1)')->execute(['person_id'=>$personId,'username'=>$username,'password_hash'=>password_hash($temporaryPassword,PASSWORD_DEFAULT),'status'=>$status,'api_access_level'=>$apiAccessLevel]);
+            $db->prepare('INSERT INTO users(person_id,username,password_hash,status,api_access_level,must_change_password) VALUES(:person_id,:username,:password_hash,:status,:api_access_level,1)')->execute(['person_id'=>$storedPersonId,'username'=>$username,'password_hash'=>password_hash($temporaryPassword,PASSWORD_DEFAULT),'status'=>$status,'api_access_level'=>$apiAccessLevel]);
             $userId = (int) $db->lastInsertId(); $before = null;
         }
         $db->prepare('DELETE FROM user_roles WHERE user_id=:user_id')->execute(['user_id'=>$userId]);
         $insertRole = $db->prepare('INSERT INTO user_roles(user_id,role_id) VALUES(:user_id,:role_id)');
         foreach ($roles as $role) $insertRole->execute(['user_id'=>$userId,'role_id'=>$roleIds[$role]]);
-        if (array_intersect(['assistant_editor','assistant_viewer'], $roles)) {
+        if ($personId > 0 && array_intersect(['assistant_editor','assistant_viewer'], $roles)) {
             $db->prepare('UPDATE people SET guard_eligible=0 WHERE id=:id')->execute(['id'=>$personId]);
         }
-        apiAudit($db, $before ? 'admin.user_updated' : 'admin.user_created', 'user', $userId, $before, ['person_id'=>$personId,'username'=>$username,'status'=>$status,'api_access_level'=>$apiAccessLevel,'roles'=>$roles]);
+        apiAudit($db, $before ? 'admin.user_updated' : 'admin.user_created', 'user', $userId, $before, ['person_id'=>$storedPersonId,'username'=>$username,'status'=>$status,'api_access_level'=>$apiAccessLevel,'roles'=>$roles]);
         $db->commit();
         apiSuccess(['message'=>'Contul a fost salvat.','user_id'=>$userId,'temporary_password'=>$temporaryPassword !== '' ? $temporaryPassword : null]);
     } catch (PDOException $error) {

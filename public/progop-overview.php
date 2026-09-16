@@ -58,6 +58,14 @@ if ((int)$user['must_change_password'] === 1) {
             <span class="daily-status-dot" aria-hidden="true"></span>
             <strong id="dailyStatusLabel">Starea blocului</strong>
             <p id="dailyStatusMessage">Se pregătește programul zilei.</p>
+            <div id="dailyEmojiSlider" class="daily-emoji-slider" role="progressbar" aria-label="Progresul operațiilor zilei" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span aria-hidden="true">☕</span>
+                <div class="daily-emoji-track">
+                    <div id="dailyEmojiFill" class="daily-emoji-fill"></div>
+                    <span id="dailyEmojiMarker" class="daily-emoji-marker" aria-hidden="true">🥱</span>
+                </div>
+                <span aria-hidden="true">🏆</span>
+            </div>
         </section>
 
         <section class="toolbar <?= $isOperatingRoomDashboard ? 'kiosk-toolbar' : '' ?>">
@@ -95,16 +103,6 @@ if ((int)$user['must_change_password'] === 1) {
         </section>
 
         <section class="summary-grid">
-            <article class="summary-card">
-                <span class="summary-label">Progres total</span>
-                <strong id="summaryProgress">0 / 0</strong>
-                <p id="summaryPercent" class="summary-note">0%</p>
-                <div class="operation-progress" role="progressbar" aria-label="Progres operatii" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                    <div id="summaryProgressFill" class="operation-progress-fill"></div>
-                    <span id="summaryProgressMarker" class="operation-progress-marker" aria-hidden="true">+</span>
-                </div>
-                <p id="summaryProgressMessage" class="progress-message">Cafeaua e pregatita. Operatiile inca se gandesc.</p>
-            </article>
             <article class="summary-card">
                 <span class="summary-label">Intervenții extra</span>
                 <strong id="summaryExtra">0</strong>

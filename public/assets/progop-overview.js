@@ -30,11 +30,6 @@ function cacheElements() {
     el.refreshOverviewBtn = document.getElementById("refreshOverviewBtn");
     el.openSchedulerBtn = document.getElementById("openSchedulerBtn");
     el.referenceDateHint = document.getElementById("referenceDateHint");
-    el.summaryProgress = document.getElementById("summaryProgress");
-    el.summaryPercent = document.getElementById("summaryPercent");
-    el.summaryProgressFill = document.getElementById("summaryProgressFill");
-    el.summaryProgressMarker = document.getElementById("summaryProgressMarker");
-    el.summaryProgressMessage = document.getElementById("summaryProgressMessage");
     el.summaryExtra = document.getElementById("summaryExtra");
     el.summaryBlocked = document.getElementById("summaryBlocked");
     el.summaryGuardsNote = document.getElementById("summaryGuardsNote");
@@ -44,6 +39,9 @@ function cacheElements() {
     el.toast = document.getElementById("overviewToast");
     el.dailyStatusLabel = document.getElementById("dailyStatusLabel");
     el.dailyStatusMessage = document.getElementById("dailyStatusMessage");
+    el.dailyEmojiSlider = document.getElementById("dailyEmojiSlider");
+    el.dailyEmojiFill = document.getElementById("dailyEmojiFill");
+    el.dailyEmojiMarker = document.getElementById("dailyEmojiMarker");
     el.kioskPrevDay = document.getElementById("kioskPrevDay");
     el.kioskToday = document.getElementById("kioskToday");
     el.kioskNextDay = document.getElementById("kioskNextDay");
@@ -172,12 +170,6 @@ function renderOverview() {
     });
 
     const progressPercent = total ? Math.round((completed / total) * 100) : 0;
-    el.summaryProgress.textContent = `${completed} / ${total}`;
-    el.summaryPercent.textContent = `${progressPercent}% efectuate`;
-    el.summaryProgressFill.style.width = `${progressPercent}%`;
-    el.summaryProgressMarker.style.left = `${progressPercent}%`;
-    el.summaryProgressMarker.parentElement.setAttribute("aria-valuenow", String(progressPercent));
-    el.summaryProgressMessage.textContent = getProgressMessage(progressPercent, total);
     renderDailyStatus(progressPercent, total, completed, extra);
     el.summaryExtra.textContent = String(extra);
     el.summaryBlocked.textContent = String(blocked);
@@ -214,16 +206,12 @@ function renderDailyStatus(percent, total, completed, extra) {
     const dayIndex = Math.floor(point.getTime() / 86400000) % messages.length;
     el.dailyStatusLabel.textContent = total ? `${completed}/${total} efectuate${extra ? ` · ${extra} EXTRA` : ""}` : "Program liber";
     el.dailyStatusMessage.textContent = messages[(dayIndex + messages.length) % messages.length];
-    el.dailyStatusMessage.closest(".daily-status-bar")?.style.setProperty("--daily-progress", `${percent}%`);
-}
-
-function getProgressMessage(percent, total) {
-    if (!total) return "Cafeaua e pregatita. Operatiile inca se gandesc.";
-    if (percent === 100) return "Lista inchisa. Aplauze silentioase, suntem in spital.";
-    if (percent >= 75) return "Ultima sutura de progres. Aproape gata.";
-    if (percent >= 50) return "Jumatate trecuta. Blocul operator respira controlat.";
-    if (percent >= 25) return "Ritmul e bun. Cafeaua cere intariri.";
-    return "Am pornit. Halatele sunt optimiste.";
+    const marker = !total ? "☕" : percent === 100 ? "🏆" : percent >= 75 ? "😎" : percent >= 50 ? "🚀" : percent >= 25 ? "🐢" : "🥱";
+    el.dailyEmojiFill.style.width = `${percent}%`;
+    el.dailyEmojiMarker.style.left = `${percent}%`;
+    el.dailyEmojiMarker.textContent = marker;
+    el.dailyEmojiSlider.setAttribute("aria-valuenow", String(percent));
+    el.dailyEmojiSlider.setAttribute("aria-valuetext", total ? `${completed} din ${total} operații efectuate` : "Nu sunt operații programate");
 }
 
 function renderDayPanel(date, day) {
@@ -304,18 +292,18 @@ function canDragOperation(item) {
 }
 
 function statusLabel(status) {
-    return ({ scheduled: "Programată", in_room: "Pacienta în sală", in_progress: "În desfășurare", completed: "Efectuată" })[status] || "Programată";
+    return ({ scheduled: "Programată", in_room: "Pacienta în sală", in_progress: "Pacienta în sală", completed: "Efectuată" })[status] || "Programată";
 }
 
 function renderDashboardStatusActions(item) {
     const statuses = [
         ["scheduled", "Programată"],
         ["in_room", "În sală"],
-        ["in_progress", "În desfășurare"],
         ["completed", "Efectuată"]
     ];
+    const currentStatus = item.operatingStatus === "in_progress" ? "in_room" : item.operatingStatus;
     return `<div class="dashboard-status-actions" role="group" aria-label="Starea operației">
-        ${statuses.map(([status, label]) => `<button type="button" data-dashboard-status="${status}" data-operation-id="${item.id}" class="${item.operatingStatus === status ? "active" : ""}">${label}</button>`).join("")}
+        ${statuses.map(([status, label]) => `<button type="button" data-dashboard-status="${status}" data-operation-id="${item.id}" class="${currentStatus === status ? "active" : ""}">${label}</button>`).join("")}
     </div>`;
 }
 

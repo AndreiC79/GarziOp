@@ -219,7 +219,7 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
         el.list.querySelectorAll("[data-delete-person]").forEach((button) => button.addEventListener("click", () => deletePerson(findPerson(button.dataset.deletePerson))));
     }
 
-    const accountRolePriority = ["platform_admin", "super_admin", "doctor_admin", "guards_admin", "doctor_ati", "doctor_nn", "doctor_standard", "doctor_og", "assistant_editor", "assistant_viewer"];
+    const accountRolePriority = ["platform_admin", "super_admin", "operating_room_dashboard", "doctor_admin", "guards_admin", "doctor_ati", "doctor_nn", "doctor_standard", "doctor_og", "assistant_editor", "assistant_viewer"];
 
     function roleLabel(code) {
         return (state.data.roles || []).find((role) => role.code === code)?.name || String(code || "Rol personalizat").replaceAll("_", " ");
@@ -245,7 +245,9 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
 
     function renderPersonRow(person) {
         const roles = state.data.userRoles[person.user_id] || [];
-        return `<article class="admin-user-row${Number(person.active) ? "" : " inactive"}"><span class="admin-user-avatar">${escapeHtml(initials(person.display_name))}</span><div class="admin-user-identity"><strong>${escapeHtml([person.title, person.display_name].filter(Boolean).join(" "))}</strong><span>${escapeHtml(person.professional_category || "Medic")} &middot; ${escapeHtml(person.specialty)}${Number(person.guard_eligible) ? " &middot; garzi" : " &middot; fara garzi"}</span></div><div class="admin-user-account"><b>${escapeHtml(person.username || "Fara cont")}</b><span>${person.user_id ? escapeHtml(person.user_status) : "doar persoana"}</span></div><div class="admin-user-roles">${roles.length ? roles.map((role) => `<i>${escapeHtml(roleLabel(role))}</i>`).join("") : "-"}</div><div class="admin-user-actions"><button type="button" class="ghost-button" data-edit-person="${person.id}">Date</button><button type="button" class="primary-button" data-edit-account="${person.id}">${person.user_id ? "Cont si drepturi" : "Creeaza cont"}</button>${Number(person.active) && Number(person.id) !== Number(state.data.currentPersonId) ? `<button type="button" class="danger-button" data-delete-person="${person.id}">Sterge</button>` : ""}</div></article>`;
+        const systemAccount = Number(person.system_account) === 1;
+        const participation = systemAccount ? " &middot; acces dedicat panoului" : Number(person.guard_eligible) ? " &middot; garzi" : " &middot; fara garzi";
+        return `<article class="admin-user-row${Number(person.active) ? "" : " inactive"}"><span class="admin-user-avatar">${escapeHtml(initials(person.display_name))}</span><div class="admin-user-identity"><strong>${escapeHtml([person.title, person.display_name].filter(Boolean).join(" "))}</strong><span>${escapeHtml(person.professional_category || "Medic")} &middot; ${escapeHtml(person.specialty)}${participation}</span></div><div class="admin-user-account"><b>${escapeHtml(person.username || "Fara cont")}</b><span>${person.user_id ? escapeHtml(person.user_status) : "doar persoana"}</span></div><div class="admin-user-roles">${roles.length ? roles.map((role) => `<i>${escapeHtml(roleLabel(role))}</i>`).join("") : "-"}</div><div class="admin-user-actions">${systemAccount ? "" : `<button type="button" class="ghost-button" data-edit-person="${person.id}">Date</button>`}<button type="button" class="primary-button" data-edit-account="${person.id}">${person.user_id ? "Cont si drepturi" : "Creeaza cont"}</button>${!systemAccount && Number(person.active) && Number(person.id) !== Number(state.data.currentPersonId) ? `<button type="button" class="danger-button" data-delete-person="${person.id}">Sterge</button>` : ""}</div></article>`;
     }
 
     function renderPeople() {
@@ -298,7 +300,7 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
     function openAccount(person) {
         state.person = person; el.accountTitle.textContent = person.display_name; el.accountPersonId.value = person.id; el.userId.value = person.user_id || ""; el.username.value = person.username || usernameSuggestion(person); el.userStatus.value = person.user_status || "active"; el.userApiAccess.value=person.api_access_level||"none"; el.temporaryPassword.value = ""; el.temporaryResult.hidden = true;
         const assignedRoles = new Set(state.data.userRoles[person.user_id] || []);
-        const presetRoles=["platform_admin","super_admin","doctor_admin","doctor_standard","doctor_ati","doctor_nn","guards_admin","assistant_editor","assistant_viewer"];
+        const presetRoles=["platform_admin","super_admin","operating_room_dashboard","doctor_admin","doctor_standard","doctor_ati","doctor_nn","guards_admin","assistant_editor","assistant_viewer"];
         el.accountPreset.value=assignedRoles.size===1&&presetRoles.includes([...assignedRoles][0])?[...assignedRoles][0]:"custom";
         if (el.accountPreset.value === "doctor_standard" && String(person.professional_category || "").toLocaleLowerCase("ro").includes("rezident")) el.accountPreset.value = "doctor_resident";
         const recommended = state.data.roles.filter((role) => role.code !== "doctor_og");
