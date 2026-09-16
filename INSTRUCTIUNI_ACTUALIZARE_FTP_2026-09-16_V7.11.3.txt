@@ -1,0 +1,8 @@
+ACTUALIZARE V7.11.3 - CORECTIE SALVARE CONT DASHBOARD
+
+1. Incarcati prin FTP continutul pachetului peste instalarea V7.11.2.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Nu exista modificari de structura a bazei de date si nu trebuie rulata manual nicio migrare.
+4. Deschideti Administrare > Personal si acces > Cont Dashboard.
+5. Aplicatia recunoaste utilizatorul dashboard existent si completeaza automat rolul si drepturile lipsa.
+6. Salvati contul cu starea Activ; parola temporara este necesara numai daca doriti resetarea ei.

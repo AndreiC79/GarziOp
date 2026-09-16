@@ -44,6 +44,7 @@ function loadAdminConfiguration(PDO $db): never
     $canManagePermissions = in_array('admin.permissions', $apiPermissions, true);
     $canViewAudit = in_array('admin.audit', $apiPermissions, true);
     $canGenerateReports = Statistics::canGenerate($db, (int)$apiUser['id']);
+    if ($canManageUsers) ensureOperatingRoomDashboardRole($db);
     $rows = $db->query('SELECT specialty, line_count, line_labels, line1_protected, updated_at FROM guard_specialty_settings ORDER BY FIELD(specialty, "OG", "ATI", "NN")')->fetchAll();
     $lineMonth = validMonth((string)($_GET['line_month'] ?? date('Y-m')));
     $people = $canManagePeople ? $db->query(
@@ -756,6 +757,7 @@ function saveUser(PDO $db, array $input): never
         apiError('Persoana, username-ul si starea contului nu sunt valide.');
     }
     $storedPersonId = $isDashboardAccount ? null : $personId;
+    if ($isDashboardAccount) ensureOperatingRoomDashboardRole($db);
     if ($userId === (int) $apiUser['id'] && $status !== 'active') apiError('Nu iti poti dezactiva propriul cont.', 409);
     $roleIds = [];
     if ($roles) {
@@ -798,6 +800,20 @@ function saveUser(PDO $db, array $input): never
         apiLogException($error, 'admin.save_user');
         apiError('Contul nu a putut fi salvat.', 500);
     }
+}
+
+function ensureOperatingRoomDashboardRole(PDO $db): void
+{
+    $db->exec(
+        "INSERT INTO roles(code,name,description,is_system)
+         VALUES('operating_room_dashboard','Panou bloc operator','Acces exclusiv la panoul tactil al salilor pentru ieri, astazi si maine; poate actualiza fluxul, adauga urgente si muta operatii nefinalizate.',1)
+         ON DUPLICATE KEY UPDATE name=VALUES(name),description=VALUES(description),is_system=VALUES(is_system)"
+    );
+    $db->exec(
+        "INSERT IGNORE INTO role_permissions(role_id,permission_id)
+         SELECT r.id,p.id FROM roles r JOIN permissions p ON p.code IN ('progop.view','progop.create','progop.manage_all')
+         WHERE r.code='operating_room_dashboard'"
+    );
 }
 
 function saveUserPermissions(PDO $db, array $input): never

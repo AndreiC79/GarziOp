@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.16.7.11.2',
-    'release' => 'FTP V7.11.2',
+    'version' => '2026.09.16.7.11.3',
+    'release' => 'FTP V7.11.3',
     'released_at' => '2026-09-16',
-    'summary' => 'V7.11.2 face contul Dashboard usor de gasit si creat din Administrare.',
+    'summary' => 'V7.11.3 corecteaza salvarea contului Dashboard in instalatiile online.',
     'changes' => [
+        'Contul dashboard existent este recunoscut dupa username chiar daca rolul nu fusese inca asociat.',
+        'Rolul Dashboard si drepturile sale sunt completate automat in tabelele existente, fara migrare sau schimbarea structurii bazei de date.',
         'Personal si acces include filtrul Sistem / Dashboard.',
         'Butonul Cont Dashboard deschide contul existent sau pregateste unul nou cu rolul corect.',
         'Overview foloseste o singura zona de progres, cu slider si emoticoane care reflecta progresul zilei.',

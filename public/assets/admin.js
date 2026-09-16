@@ -312,9 +312,11 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
     }
 
     function openDashboardAccount() {
-        const existing = (state.data.people || []).find((person) => (state.data.userRoles[person.user_id] || []).includes("operating_room_dashboard"));
+        const existing = (state.data.people || []).find((person) => person.username === "dashboard" || (state.data.userRoles[person.user_id] || []).includes("operating_room_dashboard"));
         if (existing) {
             openAccount(existing);
+            el.accountPreset.value = "operating_room_dashboard";
+            applyAccountPreset();
             return;
         }
         openAccount({ id: 0, display_name: "Dashboard bloc operator", username: "dashboard", specialty: "SISTEM", professional_category: "Cont tehnic", active: 1, guard_eligible: 0, system_account: 1 });
@@ -345,6 +347,7 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
     async function saveAccount(event) {
         event.preventDefault();
         const roles = [...el.roleOptions.querySelectorAll('input:checked')].map((input) => input.value);
+        if (el.accountPreset.value === "operating_room_dashboard" && !roles.includes("operating_room_dashboard")) roles.push("operating_room_dashboard");
         const result = await mutate({ action: "save_user", user_id: Number(el.userId.value) || 0, person_id: Number(el.accountPersonId.value), username: el.username.value, status: el.userStatus.value, api_access_level:el.userApiAccess.value, temporary_password: el.temporaryPassword.value, roles });
         const temporaryPassword = result.temporary_password; closeDrawer(el.accountDrawer); await load();
         if (temporaryPassword) window.alert(`Parola temporară generată: ${temporaryPassword}`);
