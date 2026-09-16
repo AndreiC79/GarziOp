@@ -66,12 +66,13 @@
             <div><span class="eyebrow">Personal si acces</span><h3>Medici, rezidenti si utilizatori</h3><p>Persoana ramane disponibila in Program Operator chiar daca nu participa la garzi sau nu are cont.</p></div>
             <div class="admin-users-header-actions">
                 <button type="button" class="ghost-button" id="adminUserReport">Descarca raport PDF</button>
+                <button type="button" class="ghost-button" id="adminDashboardAccount">Cont Dashboard</button>
                 <button type="button" class="primary-button" id="adminAddPerson">Adauga persoana</button>
             </div>
         </header>
         <div class="admin-users-filters">
             <input type="search" id="adminPeopleSearch" placeholder="Cauta dupa nume sau username...">
-            <select id="adminPeopleSpecialty"><option value="">Toate categoriile</option><option>OG</option><option>ATI</option><option>NN</option><option value="RESIDENTS">Rezidenti</option><option value="ASISTENTA">Asistente</option></select>
+            <select id="adminPeopleSpecialty"><option value="">Toate categoriile</option><option>OG</option><option>ATI</option><option>NN</option><option value="RESIDENTS">Rezidenti</option><option value="ASISTENTA">Asistente</option><option value="SISTEM">Sistem / Dashboard</option></select>
             <select id="adminPeopleSort" aria-label="Ordoneaza lista"><option value="account_type">Ordoneaza dupa tipul de cont</option><option value="name">Ordoneaza dupa nume</option><option value="specialty">Ordoneaza dupa specialitate</option></select>
         </div>
         <div class="admin-users-list" id="adminUsersList"></div>

@@ -1,0 +1,8 @@
+ACTUALIZARE V7.11.2 - CONT DASHBOARD IN ADMINISTRARE
+
+1. Incarcati prin FTP continutul pachetului peste instalarea V7.11.1.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Nu exista modificari de structura a bazei de date si nu trebuie rulata nicio migrare noua.
+4. In Administrare > Personal si acces folositi butonul Cont Dashboard.
+5. Contul apare si in filtrul Sistem / Dashboard.
+6. Daca nu exista, formularul propune username dashboard si presetul Dashboard sala de operatii.

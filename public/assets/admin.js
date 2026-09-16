@@ -7,7 +7,7 @@
         guardLinesMonth: document.getElementById("adminGuardLinesMonth"), ogLine1Protected: document.getElementById("adminOgLine1Protected"), protectionHelp: document.getElementById("adminProtectionHelp"), generatorCard: document.getElementById("adminOgGenerator"),
         generationForm: document.getElementById("adminGenerationForm"), generationStart: document.getElementById("adminGenerationStart"), generationDoctor: document.getElementById("adminGenerationDoctor"), generationMonths: document.getElementById("adminGenerationMonths"), generationStatus: document.getElementById("adminGenerationStatus"), publishGeneration: document.getElementById("adminPublishGeneration"), rotationList: document.getElementById("adminRotationList"), rotationCandidate: document.getElementById("adminRotationCandidate"), rotationAdd: document.getElementById("adminRotationAdd"),
         guardParticipationCard: document.getElementById("adminGuardParticipationCard"), guardParticipationSpecialty: document.getElementById("adminGuardParticipationSpecialty"), guardParticipationCategory: document.getElementById("adminGuardParticipationCategory"), guardParticipationSearch: document.getElementById("adminGuardParticipationSearch"), guardParticipationList: document.getElementById("adminGuardParticipationList"),
-        list: document.getElementById("adminUsersList"), search: document.getElementById("adminPeopleSearch"), specialtyFilter: document.getElementById("adminPeopleSpecialty"), peopleSort: document.getElementById("adminPeopleSort"), userReport: document.getElementById("adminUserReport"), addPerson: document.getElementById("adminAddPerson"),
+        list: document.getElementById("adminUsersList"), search: document.getElementById("adminPeopleSearch"), specialtyFilter: document.getElementById("adminPeopleSpecialty"), peopleSort: document.getElementById("adminPeopleSort"), userReport: document.getElementById("adminUserReport"), dashboardAccount: document.getElementById("adminDashboardAccount"), addPerson: document.getElementById("adminAddPerson"),
         personDrawer: document.getElementById("adminPersonDrawer"), personForm: document.getElementById("adminPersonForm"), personTitle: document.getElementById("adminPersonTitle"),
         personId: document.getElementById("adminPersonId"), firstName: document.getElementById("adminFirstName"), lastName: document.getElementById("adminLastName"), displayName: document.getElementById("adminDisplayName"), title: document.getElementById("adminTitle"), category: document.getElementById("adminCategory"), specialty: document.getElementById("adminSpecialty"), rotation: document.getElementById("adminRotation"), active: document.getElementById("adminPersonActive"), guardEligible: document.getElementById("adminGuardEligible"), notes: document.getElementById("adminPersonNotes"),
         accountDrawer: document.getElementById("adminAccountDrawer"), accountForm: document.getElementById("adminAccountForm"), accountTitle: document.getElementById("adminAccountTitle"), accountPersonId: document.getElementById("adminAccountPersonId"), userId: document.getElementById("adminUserId"), accountPreset: document.getElementById("adminAccountPreset"), username: document.getElementById("adminUsername"), userStatus: document.getElementById("adminUserStatus"), userApiAccess: document.getElementById("adminUserApiAccess"), temporaryPassword: document.getElementById("adminTemporaryPassword"), roleOptions: document.getElementById("adminRoleOptions"), permissionsSection: document.getElementById("adminPermissionsSection"), permissionsForm: document.getElementById("adminPermissionsForm"), permissionOptions: document.getElementById("adminPermissionOptions"), resetPassword: document.getElementById("adminResetPassword"), temporaryResult: document.getElementById("adminTemporaryResult"), accountTokens: document.getElementById("adminAccountTokens"), accountTokenList: document.getElementById("adminAccountTokenList"),
@@ -44,6 +44,7 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
     el.specialtyFilter.addEventListener("change", () => { state.specialty = el.specialtyFilter.value; renderPeople(); });
     el.peopleSort.addEventListener("change", () => { state.peopleSort = el.peopleSort.value; renderPeople(); });
     el.userReport.addEventListener("click", () => { window.location.href = "api/admin-user-report.php"; });
+    el.dashboardAccount.addEventListener("click", openDashboardAccount);
     el.addPerson.addEventListener("click", () => openPerson(null));
     el.firstName.addEventListener("input", syncDisplayName);
     el.lastName.addEventListener("input", syncDisplayName);
@@ -87,6 +88,7 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
             if (!response.ok || !data.ok) throw new Error(data.message || "Configuratia nu a putut fi incarcata.");
             state.data = data;
             el.userReport.hidden = !data.canManageUsers;
+            el.dashboardAccount.hidden = !data.canManageUsers;
             el.reportsCard.hidden = !data.canGenerateReports;
             if (el.reportsCard.closest("details")) el.reportsCard.closest("details").hidden = !data.canGenerateReports;
             if (data.canGenerateReports) initializeReportFilters();
@@ -307,6 +309,17 @@ createAdminGroup(el.reportsCard,"Statistici si rapoarte","Lunar si anual, PDF si
         const legacy = state.data.roles.filter((role) => role.code === "doctor_og");
         el.roleOptions.innerHTML = `<p class="admin-role-intro">Alege, de regula, un singur rol. Participarea la garzi si accesul API se stabilesc separat.</p><div class="admin-role-presets-grid">${recommended.map((role) => roleCard(role, assignedRoles)).join("")}</div>${legacy.length ? `<details class="admin-legacy-roles"><summary>Rol vechi pastrat pentru compatibilitate</summary><div class="admin-role-presets-grid">${legacy.map((role) => roleCard(role, assignedRoles, true)).join("")}</div></details>` : ""}`;
         renderPermissions(person);renderAccountTokens(person); openDrawer(el.accountDrawer);
+    }
+
+    function openDashboardAccount() {
+        const existing = (state.data.people || []).find((person) => (state.data.userRoles[person.user_id] || []).includes("operating_room_dashboard"));
+        if (existing) {
+            openAccount(existing);
+            return;
+        }
+        openAccount({ id: 0, display_name: "Dashboard bloc operator", username: "dashboard", specialty: "SISTEM", professional_category: "Cont tehnic", active: 1, guard_eligible: 0, system_account: 1 });
+        el.accountPreset.value = "operating_room_dashboard";
+        applyAccountPreset();
     }
 
     function roleCard(role, assignedRoles, legacy = false) {

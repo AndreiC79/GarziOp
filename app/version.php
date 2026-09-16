@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.16.7.11.1',
-    'release' => 'FTP V7.11.1',
+    'version' => '2026.09.16.7.11.2',
+    'release' => 'FTP V7.11.2',
     'released_at' => '2026-09-16',
-    'summary' => 'V7.11.1 simplifica panoul tactil si integreaza complet contul Dashboard in Administrare.',
+    'summary' => 'V7.11.2 face contul Dashboard usor de gasit si creat din Administrare.',
     'changes' => [
+        'Personal si acces include filtrul Sistem / Dashboard.',
+        'Butonul Cont Dashboard deschide contul existent sau pregateste unul nou cu rolul corect.',
         'Overview foloseste o singura zona de progres, cu slider si emoticoane care reflecta progresul zilei.',
         'Panoul tactil foloseste numai starile Programata, In sala si Efectuata; starea veche In desfasurare este afisata compatibil ca In sala.',
         'Contul Dashboard poate fi folosit simultan pe mai multe ecrane sau dispozitive.',
