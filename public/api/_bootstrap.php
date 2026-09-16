@@ -72,6 +72,9 @@ if ($bearerToken !== null) {
     if (!$apiUser) {
         apiError('Autentificare necesara.', 401);
     }
+    if ((int)($apiUser['must_change_password'] ?? 0) === 1) {
+        apiError('Schimba parola temporara inainte de a utiliza aplicatia.', 403);
+    }
     $apiPermissions = Auth::permissions($db, (int) $apiUser['id']);
 }
 

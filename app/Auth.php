@@ -160,6 +160,24 @@ final class Auth
         return array_column($statement->fetchAll(), 'code');
     }
 
+    public static function roles(PDO $db, int $userId): array
+    {
+        $statement = $db->prepare(
+            'SELECT r.code
+             FROM roles r
+             INNER JOIN user_roles ur ON ur.role_id = r.id
+             WHERE ur.user_id = :user_id'
+        );
+        $statement->execute(['user_id' => $userId]);
+
+        return array_column($statement->fetchAll(), 'code');
+    }
+
+    public static function hasRole(PDO $db, int $userId, string $role): bool
+    {
+        return in_array($role, self::roles($db, $userId), true);
+    }
+
     private static function recordFailedAttempt(PDO $db, array $user): void
     {
         $attempts = (int) $user['failed_login_count'] + 1;

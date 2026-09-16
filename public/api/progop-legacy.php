@@ -24,6 +24,9 @@ try {
 function handleLegacyGet(PDO $db): never
 {
     $action = (string) ($_GET['action'] ?? 'load');
+    if (legacyCurrentUserHasRole('operating_room_dashboard') && $action !== 'overview') {
+        legacyError('Contul Panou bloc operator are acces exclusiv la Overview.', 403);
+    }
     if ($action === 'download') downloadLegacyExport((string) ($_GET['file'] ?? ''));
     if ($action === 'load') {
         $month = validMonth((string) ($_GET['month'] ?? date('Y-m')));
@@ -33,7 +36,8 @@ function handleLegacyGet(PDO $db): never
     }
     if ($action === 'overview') {
         $date = validDate((string) ($_GET['date'] ?? date('Y-m-d')));
-        $mode = ($_GET['mode'] ?? 'day') === 'week' ? 'week' : 'day';
+        legacyAssertDashboardDate($date);
+        $mode = !legacyCurrentUserHasRole('operating_room_dashboard') && ($_GET['mode'] ?? 'day') === 'week' ? 'week' : 'day';
         $start = $date;
         $end = $date;
         if ($mode === 'week') {
@@ -86,6 +90,11 @@ function legacySearchPatients(PDO $db, string $query): never
 function handleLegacyPost(PDO $db, array $input): never
 {
     $action = (string) ($input['action'] ?? '');
+    if (legacyCurrentUserHasRole('operating_room_dashboard') && !in_array($action, [
+        'addEmergencyIntervention', 'moveIntervention', 'toggleCompleted', 'setDashboardStatus', 'setEstimatedTime'
+    ], true)) {
+        legacyError('Actiunea nu este disponibila contului Panou bloc operator.', 403);
+    }
     match ($action) {
         'addIntervention' => legacyAddIntervention($db, $input),
         'addEmergencyIntervention' => legacyAddEmergencyIntervention($db, $input),
@@ -98,6 +107,8 @@ function handleLegacyPost(PDO $db, array $input): never
         'moveIntervention' => legacyMoveIntervention($db, $input),
         'reorderIntervention' => legacyReorderIntervention($db, $input),
         'toggleCompleted' => legacyToggleCompleted($db, $input),
+        'setDashboardStatus' => legacySetDashboardStatus($db, $input),
+        'setEstimatedTime' => legacySetEstimatedTime($db, $input),
         'reviewExtraOperation' => legacyReviewExtraOperation($db, $input),
         'blockRoom' => legacyBlockRoom($db, $input),
         'unblockRoom' => legacyUnblockRoom($db, $input),
@@ -152,7 +163,25 @@ function legacyCapabilities(): array
         'canScheduleOwn' => $canCreate && !empty($apiUser['person_id']) && (string)($apiUser['specialty'] ?? '') === 'OG',
         'canReviewExtra' => in_array(strtolower((string)$apiUser['username']), ['cucu.andrei', 'traian.maier'], true),
         'currentIsResident' => legacyCurrentUserIsResident(),
+        'isOperatingRoomDashboard' => legacyCurrentUserHasRole('operating_room_dashboard'),
+        'isSuperAdmin' => legacyCurrentUserHasRole('super_admin'),
     ];
+}
+
+function legacyCurrentUserHasRole(string $role): bool
+{
+    global $db, $apiUser;
+    return Auth::hasRole($db, (int)$apiUser['id'], $role);
+}
+
+function legacyAssertDashboardDate(string $date): void
+{
+    if (!legacyCurrentUserHasRole('operating_room_dashboard')) return;
+    $point = new DateTimeImmutable($date);
+    $today = new DateTimeImmutable('today');
+    if ($point < $today->modify('-1 day') || $point > $today->modify('+1 day')) {
+        legacyError('Panoul bloc operator permite actiuni numai pentru ieri, astazi si maine.', 403);
+    }
 }
 
 function legacyCurrentUserIsResident(): bool
@@ -210,6 +239,7 @@ function legacyDays(PDO $db, string $start, string $end): array
         $days[$block['block_date']]['rooms'][$block['name']]['blocked'] = true;
         $days[$block['block_date']]['rooms'][$block['name']]['blockReason'] = (string) $block['reason'];
     }
+    $dashboardState = legacyDashboardOperationState();
     $operations = $db->prepare(
         'SELECT o.*,r.name room_name,ot.name operation_type,p.display_name doctor_name
          FROM operations o JOIN operation_rooms r ON r.id=o.room_id
@@ -221,14 +251,25 @@ function legacyDays(PDO $db, string $start, string $end): array
     foreach ($operations as $operation) {
         if (!isset($days[$operation['scheduled_date']]['rooms'][$operation['room_name']])) continue;
         $approval = legacyExtraApprovalMeta((bool)$operation['is_extra'], (string)($operation['extra_reason'] ?? ''));
+        $savedDashboardState = is_array($dashboardState['operations'][(string)$operation['id']] ?? null)
+            ? $dashboardState['operations'][(string)$operation['id']]
+            : [];
+        $operatingStatus = $operation['status'] === 'completed'
+            ? 'completed'
+            : (string)($savedDashboardState['status'] ?? 'scheduled');
+        if (!in_array($operatingStatus, ['scheduled', 'in_room', 'in_progress', 'completed'], true)) $operatingStatus = 'scheduled';
         $item = [
             'id' => (string) $operation['id'], 'patientName' => $operation['patient_name'], 'diagnostic' => $operation['diagnostic'] ?? '',
             'operationType' => $operation['operation_type'] ?? '', 'doctor' => $operation['doctor_name'], 'doctorId' => (int) $operation['scheduled_doctor_id'], 'customNotes' => $operation['custom_notes'] ?? '',
             'completed' => $operation['status'] === 'completed', 'completedAt' => $operation['completed_at'] ?? '',
             'extra' => (bool) $operation['is_extra'], 'extraReason' => $approval['reason'],
+            'urgent' => (bool)$operation['is_extra'] && stripos((string)($operation['extra_reason'] ?? ''), 'urgenta') !== false,
             'approvalState' => $approval['state'], 'approvalLabel' => $approval['label'],
             'createdAt' => $operation['created_at'], 'updatedAt' => $operation['updated_at'], 'createdBy' => (int) $operation['created_by'],
             'roomName' => $operation['room_name'], 'displayOrder' => (int)$operation['display_order'],
+            'operatingStatus' => $operatingStatus,
+            'estimatedTime' => preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', (string)($savedDashboardState['estimated_time'] ?? ''))
+                ? (string)$savedDashboardState['estimated_time'] : '',
         ];
         if ((bool)$operation['is_extra'] && (int)$operation['display_order'] === 0) {
             $days[$operation['scheduled_date']]['extraInterventions'][] = $item;
@@ -333,6 +374,7 @@ function legacyAddIntervention(PDO $db, array $input): never
     global $apiUser;
     requireLegacyPermission('progop.create', 'progop.manage_all');
     [$date, $roomId, $data] = legacyInterventionInput($db, $input);
+    legacyAssertDashboardDate($date);
     assertLegacyRoomAvailable($db, $date, $roomId);
     $statement = $db->prepare('INSERT INTO operations (scheduled_date,room_id,display_order,patient_name,diagnostic,operation_type_id,scheduled_doctor_id,created_by,custom_notes,is_extra,extra_reason) VALUES (:date,:room,(SELECT COALESCE(MAX(x.display_order),0)+1 FROM operations x WHERE x.scheduled_date=:order_date AND x.room_id=:order_room AND x.status<>"deleted"),:patient,:diagnostic,:type,:doctor,:user,:notes,:extra,:extra_reason)');
     $extra = legacyIsCurrentWeek($date) || new DateTimeImmutable($date) < new DateTimeImmutable('today') ? 1 : 0;
@@ -368,6 +410,11 @@ function legacyAddEmergencyIntervention(PDO $db, array $input): never
         'extra_reason'=>legacyExtraApprovalReason('pending', 'Urgenta adaugata din Overview'),
     ]);
     $id = (int)$db->lastInsertId();
+    $estimatedTime = trim((string)($input['estimatedTime'] ?? ''));
+    if ($estimatedTime !== '') {
+        if (!preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $estimatedTime)) throw new DomainException('Ora estimata nu este valida.');
+        legacyUpdateDashboardOperationState($id, ['estimated_time'=>$estimatedTime]);
+    }
     legacyOperationAudit($db, $id, 'created', null, [
         'workflow'=>'overview_emergency','date'=>$date,'room_id'=>$roomId,
         'patient'=>$data['patient'],'doctor_id'=>$data['doctor_id'],'operation_type_id'=>$data['type_id'],
@@ -500,6 +547,7 @@ function legacyMoveIntervention(PDO $db, array $input): never
     $id = (int) ($input['interventionId'] ?? 0);
     $before = requireLegacyEditableOperation($db, $id);
     $date = validDate((string) ($input['toDate'] ?? ''));
+    legacyAssertDashboardDate($date);
     $roomId = legacyRoomId($db, (string) ($input['toRoom'] ?? ''));
     assertLegacyRoomAvailable($db, $date, $roomId);
     $position = max(1, (int) ($input['position'] ?? 9999));
@@ -554,10 +602,89 @@ function legacyNormalizeRoomOrder(PDO $db, string $date, int $roomId): void
 
 function legacyToggleCompleted(PDO $db, array $input): never
 {
-    $id=(int)($input['interventionId']??0); $before=requireLegacyEditableOperation($db,$id); $completed=!empty($input['completed']);
+    $id=(int)($input['interventionId']??0); $before=requireLegacyEditableOperation($db,$id,true); $completed=!empty($input['completed']);
+    legacyAssertDashboardDate((string)$before['scheduled_date']);
+    if ((string)$before['status']==='completed' && !$completed && !legacyCurrentUserHasRole('super_admin') && !legacyCurrentUserHasRole('operating_room_dashboard')) {
+        legacyError('Numai Superuserul poate modifica o operatie efectuata.', 403);
+    }
     $db->prepare('UPDATE operations SET status=:status,completed_at=:at WHERE id=:id')->execute(['status'=>$completed?'completed':'scheduled','at'=>$completed?date('Y-m-d H:i:s'):null,'id'=>$id]);
+    legacyUpdateDashboardOperationState($id, ['status'=>$completed?'completed':'scheduled']);
     legacyOperationAudit($db,$id,'completed',$before,['completed'=>$completed]);
     legacyMutationSuccess($db,[(string)$before['scheduled_date']]);
+}
+
+function legacySetDashboardStatus(PDO $db, array $input): never
+{
+    $id = (int)($input['interventionId'] ?? 0);
+    $status = (string)($input['status'] ?? '');
+    if (!in_array($status, ['scheduled', 'in_room', 'in_progress', 'completed'], true)) {
+        throw new DomainException('Starea operatiei nu este valida.');
+    }
+    $before = requireLegacyEditableOperation($db, $id, true);
+    legacyAssertDashboardDate((string)$before['scheduled_date']);
+    if ((string)$before['status'] === 'completed' && $status !== 'completed'
+        && !legacyCurrentUserHasRole('super_admin') && !legacyCurrentUserHasRole('operating_room_dashboard')) {
+        legacyError('Numai Superuserul poate modifica o operatie efectuata.', 403);
+    }
+    $completed = $status === 'completed';
+    $db->prepare('UPDATE operations SET status=:status,completed_at=:completed_at WHERE id=:id')->execute([
+        'status'=>$completed?'completed':'scheduled',
+        'completed_at'=>$completed?date('Y-m-d H:i:s'):null,
+        'id'=>$id,
+    ]);
+    legacyUpdateDashboardOperationState($id, ['status'=>$status]);
+    legacyOperationAudit($db, $id, 'completed', $before, ['operating_status'=>$status,'completed'=>$completed]);
+    legacyMutationSuccess($db, [(string)$before['scheduled_date']], 'Starea operatiei a fost actualizata.');
+}
+
+function legacySetEstimatedTime(PDO $db, array $input): never
+{
+    $id = (int)($input['interventionId'] ?? 0);
+    $estimatedTime = trim((string)($input['estimatedTime'] ?? ''));
+    if ($estimatedTime !== '' && !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $estimatedTime)) {
+        throw new DomainException('Ora estimata nu este valida.');
+    }
+    $operation = requireLegacyEditableOperation($db, $id);
+    legacyAssertDashboardDate((string)$operation['scheduled_date']);
+    legacyUpdateDashboardOperationState($id, ['estimated_time'=>$estimatedTime]);
+    apiAudit($db, 'progop.estimated_time_updated', 'operation', $id, null, ['estimated_time'=>$estimatedTime]);
+    legacyMutationSuccess($db, [(string)$operation['scheduled_date']], 'Ora estimata a fost actualizata.');
+}
+
+function legacyDashboardOperationStatePath(): string
+{
+    return dirname(__DIR__, 2) . '/storage/config/dashboard_operation_state.json';
+}
+
+function legacyDashboardOperationState(): array
+{
+    $path = legacyDashboardOperationStatePath();
+    if (!is_file($path)) return ['format_version'=>1,'operations'=>[]];
+    $decoded = json_decode((string)file_get_contents($path), true);
+    if (!is_array($decoded)) return ['format_version'=>1,'operations'=>[]];
+    if (!is_array($decoded['operations'] ?? null)) $decoded['operations'] = [];
+    return $decoded;
+}
+
+function legacyUpdateDashboardOperationState(int $operationId, array $changes): void
+{
+    global $apiUser;
+    $state = legacyDashboardOperationState();
+    $key = (string)$operationId;
+    $current = is_array($state['operations'][$key] ?? null) ? $state['operations'][$key] : [];
+    $next = array_merge($current, $changes, ['updated_at'=>date(DATE_ATOM),'updated_by'=>(int)$apiUser['id']]);
+    if (($next['status'] ?? 'scheduled') === 'scheduled' && ($next['estimated_time'] ?? '') === '') {
+        unset($state['operations'][$key]);
+    } else {
+        $state['operations'][$key] = $next;
+    }
+    $state['format_version'] = 1;
+    $state['updated_at'] = date(DATE_ATOM);
+    $directory = dirname(legacyDashboardOperationStatePath());
+    if (!is_dir($directory)) mkdir($directory, 0775, true);
+    if (file_put_contents(legacyDashboardOperationStatePath(), json_encode($state, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR), LOCK_EX) === false) {
+        throw new DomainException('Starea panoului nu a putut fi salvata.');
+    }
 }
 
 function legacyReviewExtraOperation(PDO $db, array $input): never
@@ -775,11 +902,16 @@ function legacyIsCurrentWeek(string $date): bool
     return $point >= $start && $point <= $end;
 }
 
-function requireLegacyEditableOperation(PDO $db,int $id): array
+function requireLegacyEditableOperation(PDO $db,int $id,bool $allowCompletedTransition=false): array
 {
     global $apiPermissions,$apiUser;$statement=$db->prepare('SELECT * FROM operations WHERE id=:id AND status<>"deleted"');$statement->execute(['id'=>$id]);$operation=$statement->fetch();if(!$operation)throw new DomainException('Interventia nu a fost gasita.');
     $canEditCreated=in_array('progop.edit_own',$apiPermissions,true)||in_array('progop.create',$apiPermissions,true);
-    $allowed=in_array('progop.manage_all',$apiPermissions,true)||($canEditCreated&&(int)$operation['created_by']===(int)$apiUser['id']);if(!$allowed)legacyError('Poti modifica doar interventiile programate de tine.',403);return $operation;
+    $allowed=in_array('progop.manage_all',$apiPermissions,true)||($canEditCreated&&(int)$operation['created_by']===(int)$apiUser['id']);if(!$allowed)legacyError('Poti modifica doar interventiile programate de tine.',403);
+    legacyAssertDashboardDate((string)$operation['scheduled_date']);
+    if ((string)$operation['status']==='completed' && !$allowCompletedTransition && !legacyCurrentUserHasRole('super_admin')) {
+        legacyError('Operatiile efectuate pot fi modificate numai de Superuser.',403);
+    }
+    return $operation;
 }
 
 function legacyRooms(PDO $db): array

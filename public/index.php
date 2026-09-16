@@ -97,6 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
 }
 
 $permissions = Auth::permissions($db, (int) $user['id']);
+$isOperatingRoomDashboard = Auth::hasRole($db, (int) $user['id'], 'operating_room_dashboard');
+if ($isOperatingRoomDashboard) {
+    header('Location: progop-overview.php');
+    exit;
+}
 $canAccessAdmin = userHasPlatformAdminRole($db, (int) $user['id']);
 $module = (string) ($_GET['module'] ?? 'dashboard');
 $allowedModules = ['dashboard', 'guards', 'progop', 'admin', 'help'];

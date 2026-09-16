@@ -451,7 +451,8 @@ INSERT INTO roles (code, name, description, is_system) VALUES
 ('doctor_ati', 'Medic ATI', 'Acces medic ATI si control ProgOp', 1),
 ('doctor_nn', 'Medic NN', 'Acces medic NN si vizualizare ProgOp', 1),
 ('assistant_viewer', 'Asistenta - vizualizare si tiparire', 'Consulta si exporta Programul operator', 1),
-('assistant_editor', 'Asistenta - modificare Program operator', 'Consulta si modifica Programul operator', 1);
+('assistant_editor', 'Asistenta - modificare Program operator', 'Consulta si modifica Programul operator', 1),
+('operating_room_dashboard', 'Panou bloc operator', 'Ecran tactil pentru programul curent al salilor', 1);
 
 INSERT INTO permissions (code, module, name) VALUES
 ('guards.view', 'guards', 'Vizualizare garzi'),
@@ -484,6 +485,7 @@ UPDATE roles SET description = CASE code
     WHEN 'doctor_nn' THEN 'Gestioneaza garzile NN, vizualizeaza Programul operator si poate descarca rapoarte.'
     WHEN 'assistant_editor' THEN 'Vede garzile si poate crea, modifica, muta sau sterge operatii; poate vizualiza si descarca rapoarte.'
     WHEN 'assistant_viewer' THEN 'Poate doar vedea garzile si Programul operator si poate tipari sau descarca rapoarte.'
+    WHEN 'operating_room_dashboard' THEN 'Acces exclusiv la panoul tactil al salilor pentru ieri, astazi si maine; poate actualiza fluxul, adauga urgente si muta operatii nefinalizate.'
     ELSE description END;
 
 UPDATE permissions SET description = CASE code
@@ -517,6 +519,7 @@ WHERE (r.code IN ('super_admin','platform_admin'))
    OR (r.code = 'doctor_nn' AND p.code IN ('guards.view', 'guards.own_changes', 'progop.view', 'reports.download'))
    OR (r.code = 'assistant_viewer' AND p.code IN ('guards.view','progop.view', 'reports.download'))
    OR (r.code = 'assistant_editor' AND p.code IN ('guards.view','progop.view', 'progop.create', 'progop.manage_all', 'reports.download'))
+   OR (r.code = 'operating_room_dashboard' AND p.code IN ('progop.view', 'progop.create', 'progop.manage_all'))
    OR (r.code = 'guards_admin' AND p.code LIKE 'guards.%');
 
 INSERT INTO operation_rooms (name, display_order) VALUES

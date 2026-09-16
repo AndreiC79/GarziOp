@@ -3,11 +3,19 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.11.7.10.3',
-    'release' => 'FTP V7.10.3',
-    'released_at' => '2026-09-11',
-    'summary' => 'V7.10.3 mareste lizibilitatea calendarului de garzi.',
+    'version' => '2026.09.16.7.11.0',
+    'release' => 'FTP V7.11.0',
+    'released_at' => '2026-09-16',
+    'summary' => 'V7.11 introduce panoul tactil dedicat blocului operator.',
     'changes' => [
+        'Rolul Panou bloc operator are acces exclusiv la dashboardul tactil al salilor si este redirectionat automat dupa autentificare.',
+        'Contul de panou poate consulta si opera numai programul de ieri, astazi si maine.',
+        'Operatiile folosesc starile Programata, Pacienta in sala, In desfasurare si Efectuata, fara modificarea structurii bazei de date.',
+        'Ora estimata este optionala si poate fi completata sau eliminata direct din cardul operatiei.',
+        'Operatiile EXTRA sunt portocalii, urgentele sunt rosii, iar operatiile efectuate sunt verzi.',
+        'Urgentele pot fi introduse temporar cu identitatea pacientei in curs si urmeaza circuitul existent de aprobare EXTRA.',
+        'Operatiile efectuate nu pot fi mutate sau editate din panou, dar marcarea accidentala poate fi anulata din acelasi cont.',
+        'Bara de stare a blocului afiseaza progresul zilei si mesaje scurte care se schimba zilnic.',
         'Overview afiseaza garzile in ordinea ATI, OG, NN si foloseste culori distincte pentru fiecare specialitate.',
         'Lista medicilor de garda din Program operator foloseste aceeasi codificare cromatica ATI, OG si NN.',
         'Logo-ul oficial este integrat in pagina de autentificare, meniul platformei si Overview.',

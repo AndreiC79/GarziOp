@@ -10,6 +10,7 @@
 /storage/security/*
 !/storage/security/.gitkeep
 /storage/recovery-request.json
+/storage/config/dashboard_operation_state.json
 /storage/*.log
 /storage/logs/*
 !/storage/logs/.gitkeep

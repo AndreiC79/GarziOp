@@ -2,6 +2,7 @@ const API_URL = "api/progop-legacy.php";
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || "";
 let ROOM_NAMES = ["Sala 1", "Sala 2", "Sala 3", "Sala 4"];
 const GUARD_SPECIALTIES = ["ATI", "OG", "NN"];
+const IS_OPERATING_ROOM_DASHBOARD = document.body.dataset.operatingRoomDashboard === "1";
 
 const runtimeToday = formatDate(new Date());
 const state = {
@@ -41,6 +42,11 @@ function cacheElements() {
     el.overviewDays = document.getElementById("overviewDays");
     el.modalHost = document.getElementById("overviewModalHost");
     el.toast = document.getElementById("overviewToast");
+    el.dailyStatusLabel = document.getElementById("dailyStatusLabel");
+    el.dailyStatusMessage = document.getElementById("dailyStatusMessage");
+    el.kioskPrevDay = document.getElementById("kioskPrevDay");
+    el.kioskToday = document.getElementById("kioskToday");
+    el.kioskNextDay = document.getElementById("kioskNextDay");
 }
 
 function bindEvents() {
@@ -71,9 +77,12 @@ function bindEvents() {
         await loadOverview();
     });
     el.refreshOverviewBtn.addEventListener("click", loadOverview);
-    el.openSchedulerBtn.addEventListener("click", () => {
+    el.openSchedulerBtn?.addEventListener("click", () => {
         window.open(`progop-legacy.php?date=${encodeURIComponent(getReferenceDate())}`, "_blank", "noopener");
     });
+    el.kioskPrevDay?.addEventListener("click", () => selectKioskDay(-1));
+    el.kioskToday?.addEventListener("click", () => selectKioskDay(0));
+    el.kioskNextDay?.addEventListener("click", () => selectKioskDay(1));
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && el.modalHost?.children.length) closeEmergencyModal();
     });
@@ -86,6 +95,28 @@ function syncControls() {
     el.focusCurrentBtn.classList.toggle("active", state.focus === "current");
     el.referenceDateInput.value = state.selectedDate;
     el.referenceDateHint.textContent = formatDisplayDate(state.selectedDate);
+    if (IS_OPERATING_ROOM_DASHBOARD) {
+        const offset = dayOffsetFromToday(state.selectedDate);
+        el.kioskPrevDay?.classList.toggle("active", offset === -1);
+        el.kioskToday?.classList.toggle("active", offset === 0);
+        el.kioskNextDay?.classList.toggle("active", offset === 1);
+    }
+}
+
+async function selectKioskDay(offset) {
+    const date = new Date();
+    date.setDate(date.getDate() + offset);
+    state.selectedDate = formatDate(date);
+    state.focus = offset === 0 ? "current" : "selected";
+    state.mode = "day";
+    syncControls();
+    await loadOverview();
+}
+
+function dayOffsetFromToday(dateString) {
+    const selected = new Date(`${dateString}T12:00:00`);
+    const today = new Date(`${runtimeToday}T12:00:00`);
+    return Math.round((selected - today) / 86400000);
 }
 
 function getReferenceDate() {
@@ -147,6 +178,7 @@ function renderOverview() {
     el.summaryProgressMarker.style.left = `${progressPercent}%`;
     el.summaryProgressMarker.parentElement.setAttribute("aria-valuenow", String(progressPercent));
     el.summaryProgressMessage.textContent = getProgressMessage(progressPercent, total);
+    renderDailyStatus(progressPercent, total, completed, extra);
     el.summaryExtra.textContent = String(extra);
     el.summaryBlocked.textContent = String(blocked);
     el.summaryGuardsNote.textContent = state.mode === "day"
@@ -156,8 +188,33 @@ function renderOverview() {
 
     el.overviewDays.innerHTML = dates.map((date) => renderDayPanel(date, days[date])).join("");
     bindCheckboxes();
+    bindDashboardStatusControls();
+    bindEstimatedTimes();
     bindEmergencyButtons();
     bindOperationDragAndDrop();
+}
+
+function renderDailyStatus(percent, total, completed, extra) {
+    if (!el.dailyStatusMessage) return;
+    const messages = [
+        "Precizie, răbdare și cafea. În ordinea corectă.",
+        "Astăzi lucrăm curat: operațiile la locul lor, cafeaua aproape.",
+        "Blocul operator: unde timpul zboară, dar checklistul rămâne.",
+        "Calm, coordonare și câte un pas pe rând.",
+        "Planul este simplu: grijă mare și butoane apăsate corect.",
+        "Echipa bună face și ziua lungă să încapă în program.",
+        "Totul sub control. Inclusiv cafeaua, aproximativ.",
+        "Mai întâi siguranța, apoi viteza, apoi încă o cafea.",
+        "Fiecare operație terminată mută bara în direcția bună.",
+        "Azi facem ordine în program și bine în sală.",
+        "Programul poate fi plin. Echipa rămâne calmă.",
+        "În blocul operator, și optimismul poartă bonetă."
+    ];
+    const point = new Date(`${getReferenceDate()}T12:00:00`);
+    const dayIndex = Math.floor(point.getTime() / 86400000) % messages.length;
+    el.dailyStatusLabel.textContent = total ? `${completed}/${total} efectuate${extra ? ` · ${extra} EXTRA` : ""}` : "Program liber";
+    el.dailyStatusMessage.textContent = messages[(dayIndex + messages.length) % messages.length];
+    el.dailyStatusMessage.closest(".daily-status-bar")?.style.setProperty("--daily-progress", `${percent}%`);
 }
 
 function getProgressMessage(percent, total) {
@@ -207,19 +264,25 @@ function renderRoomPanel(date, roomName, roomState) {
             ${stateSafe.blocked ? `<p class="blocked-note">Sala este blocată${stateSafe.blockReason ? `: ${escapeHtml(stateSafe.blockReason)}` : ""}.</p>` : ""}
             ${stateSafe.interventions.length
                 ? stateSafe.interventions.map((item, index) => `
-                    <article class="intervention-mini ${item.extra ? "extra" : ""} ${item.extra && item.approvalState !== "approved" ? "approval-pending" : ""} ${item.completed ? "done" : ""}" draggable="${canDragOperation(item)}" data-drag-operation="${item.id}" data-source-date="${date}" data-source-room="${escapeHtml(roomName)}" data-source-position="${index + 1}" data-patient-name="${escapeHtml(item.patientName)}" data-operation-name="${escapeHtml(item.operationType || "Operație")}">
+                    <article class="intervention-mini status-${escapeHtml(item.operatingStatus || "scheduled")} ${item.extra ? "extra" : ""} ${item.urgent ? "urgent" : ""} ${item.extra && item.approvalState !== "approved" ? "approval-pending" : ""} ${item.completed ? "done" : ""}" draggable="${canDragOperation(item)}" data-drag-operation="${item.id}" data-source-date="${date}" data-source-room="${escapeHtml(roomName)}" data-source-position="${index + 1}" data-patient-name="${escapeHtml(item.patientName)}" data-operation-name="${escapeHtml(item.operationType || "Operație")}">
                         <div class="check-row">
                             <strong>${escapeHtml(item.patientName)}</strong>
-                            <label class="completed-toggle">
+                            ${IS_OPERATING_ROOM_DASHBOARD ? "" : `<label class="completed-toggle">
                                 <input type="checkbox" data-date="${date}" data-room="${roomName}" data-id="${item.id}" ${item.completed ? "checked" : ""}>
                                 efectuată
-                            </label>
+                            </label>`}
+                        </div>
+                        <div class="operation-time-row">
+                            <label><span>Ora estimată</span><input class="estimated-time-input" type="time" data-estimated-time="${item.id}" value="${escapeHtml(item.estimatedTime || "")}" ${item.completed ? "disabled" : ""}></label>
+                            <span class="operation-status-label">${escapeHtml(statusLabel(item.operatingStatus))}</span>
                         </div>
                         <div class="operation-facts"><span><b>Operație</b>${escapeHtml(item.operationType || "Nespecificată")}</span><span><b>Medic</b>${escapeHtml(item.doctor)}</span>${item.diagnostic ? `<span><b>Diagnostic</b>${escapeHtml(item.diagnostic)}</span>` : ""}</div>
                         <div class="pill-row">
+                            ${item.urgent ? `<span class="pill urgent">URGENȚĂ</span>` : ""}
                             ${item.extra ? `<span class="pill extra">${escapeHtml(item.approvalLabel || "EXTRA")}</span>` : ""}
                             ${item.completed ? `<span class="pill done">Finalizată</span>` : ""}
                         </div>
+                        ${IS_OPERATING_ROOM_DASHBOARD ? renderDashboardStatusActions(item) : ""}
                         <p class="intervention-submeta">${escapeHtml(buildNotes(item))}</p>
                     </article>
                 `).join("")
@@ -236,7 +299,24 @@ function getAtiNames(date, roomName) {
 
 function canDragOperation(item) {
     const capabilities = state.payload?.capabilities || {};
+    if (item.completed) return false;
     return Boolean(capabilities.canManageAll || (capabilities.canEditOwn && Number(item.createdBy) === Number(capabilities.currentUserId)));
+}
+
+function statusLabel(status) {
+    return ({ scheduled: "Programată", in_room: "Pacienta în sală", in_progress: "În desfășurare", completed: "Efectuată" })[status] || "Programată";
+}
+
+function renderDashboardStatusActions(item) {
+    const statuses = [
+        ["scheduled", "Programată"],
+        ["in_room", "În sală"],
+        ["in_progress", "În desfășurare"],
+        ["completed", "Efectuată"]
+    ];
+    return `<div class="dashboard-status-actions" role="group" aria-label="Starea operației">
+        ${statuses.map(([status, label]) => `<button type="button" data-dashboard-status="${status}" data-operation-id="${item.id}" class="${item.operatingStatus === status ? "active" : ""}">${label}</button>`).join("")}
+    </div>`;
 }
 
 function bindOperationDragAndDrop() {
@@ -325,9 +405,10 @@ function openEmergencyModal(roomName, date) {
                     <div class="overview-form-grid">
                         <label><span>Data</span><input value="${escapeHtml(formatDisplayDate(date))}" disabled></label>
                         <label><span>Sala</span><input value="${escapeHtml(roomName)}" disabled></label>
-                        <label class="full"><span>Nume pacientă</span><input name="patientName" maxlength="220" required autofocus></label>
+                        <label class="full"><span>Nume pacientă, opțional pentru urgență</span><input name="patientName" maxlength="220" placeholder="Urgență - identitate în curs" autofocus></label>
                         <label><span>Medic operator</span><select name="doctor" required><option value="">Alege medicul</option>${doctorOptions}</select></label>
                         <label><span>Tip operație</span><select name="operationType" required><option value="">Alege tipul</option>${typeOptions}</select></label>
+                        <label><span>Ora estimată, opțional</span><input name="estimatedTime" type="time"></label>
                         <label class="full"><span>Diagnostic, opțional</span><input name="diagnostic" maxlength="180"></label>
                         <label class="full"><span>Observații, opțional</span><textarea name="customNotes" maxlength="1000" rows="3"></textarea></label>
                     </div>
@@ -354,14 +435,14 @@ async function saveEmergencyOperation(event, roomName, date) {
     const submit = form.querySelector('button[type="submit"]');
     const errorBox = form.querySelector(".overview-form-error");
     const intervention = {
-        patientName: String(formData.get("patientName") || "").trim(),
+        patientName: String(formData.get("patientName") || "").trim() || "Urgență - identitate în curs",
         doctor: String(formData.get("doctor") || "").trim(),
         operationType: String(formData.get("operationType") || "").trim(),
         diagnostic: String(formData.get("diagnostic") || "").trim(),
         customNotes: String(formData.get("customNotes") || "").trim()
     };
-    if (!intervention.patientName || !intervention.doctor || !intervention.operationType) {
-        errorBox.textContent = "Completează pacienta, medicul și tipul operației.";
+    if (!intervention.doctor || !intervention.operationType) {
+        errorBox.textContent = "Completează medicul și tipul operației.";
         errorBox.hidden = false;
         return;
     }
@@ -372,7 +453,7 @@ async function saveEmergencyOperation(event, roomName, date) {
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF_TOKEN },
-            body: JSON.stringify({ action: "addEmergencyIntervention", date, room: roomName, intervention })
+            body: JSON.stringify({ action: "addEmergencyIntervention", date, room: roomName, estimatedTime: String(formData.get("estimatedTime") || ""), intervention })
         });
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.message || "Urgența nu a putut fi adăugată.");
@@ -425,6 +506,64 @@ function bindCheckboxes() {
             await loadOverview();
         });
     });
+}
+
+function bindDashboardStatusControls() {
+    document.querySelectorAll("[data-dashboard-status]").forEach((button) => {
+        button.addEventListener("click", async () => {
+            if (button.classList.contains("active")) return;
+            const card = button.closest("[data-drag-operation]");
+            const currentStatus = card?.classList.contains("status-completed") ? "completed" : "";
+            const nextStatus = button.dataset.dashboardStatus;
+            if (nextStatus === "completed" && !window.confirm("Marchezi operația ca efectuată?")) return;
+            if (currentStatus === "completed" && nextStatus !== "completed"
+                && !window.confirm("Operația este marcată efectuată. Revii la o stare activă?")) return;
+            button.disabled = true;
+            try {
+                await mutateOverview({
+                    action: "setDashboardStatus",
+                    interventionId: Number(button.dataset.operationId),
+                    status: nextStatus
+                });
+                showOverviewToast(`Stare actualizată: ${button.textContent.trim()}.`);
+                await loadOverview();
+            } catch (error) {
+                showOverviewToast(error.message || "Starea nu a putut fi actualizată.", true);
+                button.disabled = false;
+            }
+        });
+    });
+}
+
+function bindEstimatedTimes() {
+    document.querySelectorAll("[data-estimated-time]").forEach((input) => {
+        input.addEventListener("change", async () => {
+            input.disabled = true;
+            try {
+                await mutateOverview({
+                    action: "setEstimatedTime",
+                    interventionId: Number(input.dataset.estimatedTime),
+                    estimatedTime: input.value
+                });
+                showOverviewToast(input.value ? `Ora estimată a fost setată la ${input.value}.` : "Ora estimată a fost eliminată.");
+                await loadOverview();
+            } catch (error) {
+                showOverviewToast(error.message || "Ora estimată nu a putut fi salvată.", true);
+                input.disabled = false;
+            }
+        });
+    });
+}
+
+async function mutateOverview(payload) {
+    const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF_TOKEN },
+        body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "Modificarea nu a putut fi salvată.");
+    return result;
 }
 
 function summarizeDay(day) {

@@ -1,0 +1,14 @@
+ACTUALIZARE V7.11.0 - PANOU BLOC OPERATOR
+
+1. Incarcati prin FTP continutul pachetului peste instalarea existenta.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Nu exista modificari de structura a bazei de date.
+4. Rulati o singura data database/migrations/019_operating_room_dashboard.sql.
+5. Creati sau resetati contul dedicat din consola serverului:
+   php database/create_dashboard_user.php dashboard PAROLA_TEMPORARA
+6. Parola temporara trebuie sa aiba minimum 12 caractere si va fi schimbata obligatoriu la prima autentificare.
+7. Verificati accesul la public/progop-overview.php cu rolul Panou bloc operator.
+
+Pentru mediul local de test, contul a fost pregatit cu:
+username: dashboard
+parola temporara: 123412341234
