@@ -1,0 +1,12 @@
+ACTUALIZARE V7.12.1 - ORDONARE AUTOMATA IN SALA
+
+1. Incarcati prin FTP continutul pachetului peste instalarea existenta.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Pachetul este cumulativ si include toate corectiile V7.11 si V7.12.0.
+4. Nu exista modificari de structura a bazei de date.
+
+REGULI NOI:
+- operatia trecuta In sala urca automat pe primul loc;
+- operatia trecuta Efectuata coboara automat la sfarsitul listei;
+- operatiile efectuate se pastreaza jos in ordinea in care au fost finalizate;
+- revenirea la Programata nu forteaza o alta pozitie.

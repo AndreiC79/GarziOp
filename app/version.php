@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.16.7.12.0',
-    'release' => 'FTP V7.12.0',
+    'version' => '2026.09.16.7.12.1',
+    'release' => 'FTP V7.12.1',
     'released_at' => '2026-09-16',
-    'summary' => 'V7.12 reorganizeaza dashboardul salilor si centralizeaza statisticile operative in antet.',
+    'summary' => 'V7.12.1 ordoneaza automat operatiile dupa starea lor in sala.',
     'changes' => [
+        'Operatia marcata In sala este mutata automat la inceputul listei salii.',
+        'Operatia marcata Efectuata este mutata automat la sfarsitul listei salii.',
+        'Operatiile efectuate raman la final in ordinea cronologica a finalizarii.',
         'Navigarea Ieri, Astazi si Maine este afisata imediat sub antetul Programul salilor.',
         'Bara de progres este afisata imediat sub navigarea zilelor.',
         'Cardurile separate Medici de garda, Interventii extra si Sali blocate au fost eliminate.',

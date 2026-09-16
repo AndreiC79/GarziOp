@@ -600,6 +600,29 @@ function legacyNormalizeRoomOrder(PDO $db, string $date, int $roomId): void
     }
 }
 
+function legacyMoveOperationToRoomEdge(PDO $db, array $operation, string $edge): void
+{
+    if ((int)($operation['display_order'] ?? 0) <= 0 || (int)($operation['room_id'] ?? 0) <= 0) return;
+    if ($edge === 'start') {
+        $db->prepare(
+            'UPDATE operations SET display_order=display_order+1
+             WHERE scheduled_date=:date AND room_id=:room AND id<>:id AND status<>"deleted" AND display_order>0'
+        )->execute(['date'=>$operation['scheduled_date'],'room'=>$operation['room_id'],'id'=>$operation['id']]);
+        $db->prepare('UPDATE operations SET display_order=1 WHERE id=:id')->execute(['id'=>$operation['id']]);
+    } else {
+        $statement = $db->prepare(
+            'SELECT COALESCE(MAX(display_order),0)+1 FROM operations
+             WHERE scheduled_date=:date AND room_id=:room AND id<>:id AND status<>"deleted" AND display_order>0'
+        );
+        $statement->execute(['date'=>$operation['scheduled_date'],'room'=>$operation['room_id'],'id'=>$operation['id']]);
+        $db->prepare('UPDATE operations SET display_order=:position WHERE id=:id')->execute([
+            'position'=>(int)$statement->fetchColumn(),
+            'id'=>$operation['id'],
+        ]);
+    }
+    legacyNormalizeRoomOrder($db, (string)$operation['scheduled_date'], (int)$operation['room_id']);
+}
+
 function legacyToggleCompleted(PDO $db, array $input): never
 {
     $id=(int)($input['interventionId']??0); $before=requireLegacyEditableOperation($db,$id,true); $completed=!empty($input['completed']);
@@ -607,9 +630,12 @@ function legacyToggleCompleted(PDO $db, array $input): never
     if ((string)$before['status']==='completed' && !$completed && !legacyCurrentUserHasRole('super_admin') && !legacyCurrentUserHasRole('operating_room_dashboard')) {
         legacyError('Numai Superuserul poate modifica o operatie efectuata.', 403);
     }
+    $db->beginTransaction();
     $db->prepare('UPDATE operations SET status=:status,completed_at=:at WHERE id=:id')->execute(['status'=>$completed?'completed':'scheduled','at'=>$completed?date('Y-m-d H:i:s'):null,'id'=>$id]);
-    legacyUpdateDashboardOperationState($id, ['status'=>$completed?'completed':'scheduled']);
+    if ($completed) legacyMoveOperationToRoomEdge($db, $before, 'end');
     legacyOperationAudit($db,$id,'completed',$before,['completed'=>$completed]);
+    $db->commit();
+    legacyUpdateDashboardOperationState($id, ['status'=>$completed?'completed':'scheduled']);
     legacyMutationSuccess($db,[(string)$before['scheduled_date']]);
 }
 
@@ -627,13 +653,17 @@ function legacySetDashboardStatus(PDO $db, array $input): never
         legacyError('Numai Superuserul poate modifica o operatie efectuata.', 403);
     }
     $completed = $status === 'completed';
+    $db->beginTransaction();
     $db->prepare('UPDATE operations SET status=:status,completed_at=:completed_at WHERE id=:id')->execute([
         'status'=>$completed?'completed':'scheduled',
         'completed_at'=>$completed?date('Y-m-d H:i:s'):null,
         'id'=>$id,
     ]);
-    legacyUpdateDashboardOperationState($id, ['status'=>$status]);
+    if (in_array($status, ['in_room','in_progress'], true)) legacyMoveOperationToRoomEdge($db, $before, 'start');
+    if ($completed) legacyMoveOperationToRoomEdge($db, $before, 'end');
     legacyOperationAudit($db, $id, 'completed', $before, ['operating_status'=>$status,'completed'=>$completed]);
+    $db->commit();
+    legacyUpdateDashboardOperationState($id, ['status'=>$status]);
     legacyMutationSuccess($db, [(string)$before['scheduled_date']], 'Starea operatiei a fost actualizata.');
 }
 
