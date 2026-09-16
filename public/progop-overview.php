@@ -47,26 +47,13 @@ if ((int)$user['must_change_password'] === 1) {
                 <p class="subtitle"><?= $isOperatingRoomDashboard ? 'Situația operativă pentru ieri, astăzi și mâine.' : 'Monitorizare pe zi și pe săptămână, cu progresul intervențiilor și salvare imediată.' ?></p>
             </div>
             <div class="hero-actions">
+                <div id="heroOperationStats" class="hero-operation-stats" aria-live="polite">Se calculează programul...</div>
                 <button id="refreshOverviewBtn" class="secondary-btn">Reîncarcă</button>
                 <?php if (!$isOperatingRoomDashboard): ?>
                 <button id="openSchedulerBtn" class="ghost-btn">Deschide programatorul</button>
                 <?php endif; ?>
             </div>
         </header>
-
-        <section class="daily-status-bar" aria-live="polite">
-            <span class="daily-status-dot" aria-hidden="true"></span>
-            <strong id="dailyStatusLabel">Starea blocului</strong>
-            <p id="dailyStatusMessage">Se pregătește programul zilei.</p>
-            <div id="dailyEmojiSlider" class="daily-emoji-slider" role="progressbar" aria-label="Progresul operațiilor zilei" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                <span aria-hidden="true">☕</span>
-                <div class="daily-emoji-track">
-                    <div id="dailyEmojiFill" class="daily-emoji-fill"></div>
-                    <span id="dailyEmojiMarker" class="daily-emoji-marker" aria-hidden="true">🥱</span>
-                </div>
-                <span aria-hidden="true">🏆</span>
-            </div>
-        </section>
 
         <section class="toolbar <?= $isOperatingRoomDashboard ? 'kiosk-toolbar' : '' ?>">
             <?php if ($isOperatingRoomDashboard): ?>
@@ -102,22 +89,18 @@ if ((int)$user['must_change_password'] === 1) {
             </div>
         </section>
 
-        <section class="summary-grid">
-            <article class="summary-card">
-                <span class="summary-label">Intervenții extra</span>
-                <strong id="summaryExtra">0</strong>
-                <p class="summary-note">Programări adăugate ulterior</p>
-            </article>
-            <article class="summary-card">
-                <span class="summary-label">Săli blocate</span>
-                <strong id="summaryBlocked">0</strong>
-                <p class="summary-note">În intervalul afișat</p>
-            </article>
-            <article class="summary-card guards-card">
-                <span class="summary-label">Medici de garda</span>
-                <p id="summaryGuardsNote" class="summary-note">Categorii ATI, OG, NN</p>
-                <div id="summaryGuardsList" class="summary-guards-list"></div>
-            </article>
+        <section class="daily-status-bar" aria-live="polite">
+            <span class="daily-status-dot" aria-hidden="true"></span>
+            <strong id="dailyStatusLabel">Starea blocului</strong>
+            <p id="dailyStatusMessage">Se pregătește programul zilei.</p>
+            <div id="dailyEmojiSlider" class="daily-emoji-slider" role="progressbar" aria-label="Progresul operațiilor zilei" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span aria-hidden="true">☕</span>
+                <div class="daily-emoji-track">
+                    <div id="dailyEmojiFill" class="daily-emoji-fill"></div>
+                    <span id="dailyEmojiMarker" class="daily-emoji-marker" aria-hidden="true">🥱</span>
+                </div>
+                <span aria-hidden="true">🏆</span>
+            </div>
         </section>
 
         <section class="overview-content">

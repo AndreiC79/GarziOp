@@ -1,0 +1,14 @@
+ACTUALIZARE V7.12.0 - REORGANIZARE DASHBOARD SALI
+
+1. Incarcati prin FTP continutul pachetului peste instalarea existenta.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Pachetul este cumulativ si include toate corectiile V7.11.
+4. Nu exista modificari de structura a bazei de date si nu trebuie rulata manual nicio migrare.
+5. Goliti cache-ul browserului sau reincarcati fortat pagina dupa actualizare.
+
+MODIFICARI:
+- Ieri, Astazi si Maine apar direct sub panoul Programul salilor;
+- progresul apare imediat sub navigarea zilelor;
+- au fost eliminate panourile redundante pentru medici de garda, EXTRA si sali blocate;
+- antetul afiseaza operatiile defalcat pe tip, numarul EXTRA si salile blocate;
+- contul Dashboard si drepturile sale se configureaza automat si daca V7.11.0 nu a fost instalata separat.

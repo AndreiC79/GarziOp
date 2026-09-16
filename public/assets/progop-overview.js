@@ -30,10 +30,7 @@ function cacheElements() {
     el.refreshOverviewBtn = document.getElementById("refreshOverviewBtn");
     el.openSchedulerBtn = document.getElementById("openSchedulerBtn");
     el.referenceDateHint = document.getElementById("referenceDateHint");
-    el.summaryExtra = document.getElementById("summaryExtra");
-    el.summaryBlocked = document.getElementById("summaryBlocked");
-    el.summaryGuardsNote = document.getElementById("summaryGuardsNote");
-    el.summaryGuardsList = document.getElementById("summaryGuardsList");
+    el.heroOperationStats = document.getElementById("heroOperationStats");
     el.overviewDays = document.getElementById("overviewDays");
     el.modalHost = document.getElementById("overviewModalHost");
     el.toast = document.getElementById("overviewToast");
@@ -143,12 +140,10 @@ function renderOverview() {
     let completed = 0;
     let extra = 0;
     let blocked = 0;
-    const guardsBySpecialty = createEmptyGuardSummary();
+    const operationTypes = new Map();
 
     dates.forEach((date) => {
         const day = days[date];
-        const guards = getGuardAssignmentsForDate(date);
-        mergeGuardsIntoSummary(guardsBySpecialty, guards);
         ROOM_NAMES.forEach((room) => {
             const roomState = day?.rooms?.[room];
             if (!roomState) {
@@ -165,18 +160,15 @@ function renderOverview() {
                 if (item.extra) {
                     extra += 1;
                 }
+                const operationType = String(item.operationType || "Nespecificată").trim();
+                operationTypes.set(operationType, (operationTypes.get(operationType) || 0) + 1);
             });
         });
     });
 
     const progressPercent = total ? Math.round((completed / total) * 100) : 0;
     renderDailyStatus(progressPercent, total, completed, extra);
-    el.summaryExtra.textContent = String(extra);
-    el.summaryBlocked.textContent = String(blocked);
-    el.summaryGuardsNote.textContent = state.mode === "day"
-        ? "Categorii pentru ziua selectata"
-        : "Medici unici din intervalul afisat";
-    el.summaryGuardsList.innerHTML = renderGuardSummaryList(guardsBySpecialty);
+    renderHeroOperationStats(operationTypes, extra, blocked);
 
     el.overviewDays.innerHTML = dates.map((date) => renderDayPanel(date, days[date])).join("");
     bindCheckboxes();
@@ -184,6 +176,17 @@ function renderOverview() {
     bindEstimatedTimes();
     bindEmergencyButtons();
     bindOperationDragAndDrop();
+}
+
+function renderHeroOperationStats(operationTypes, extra, blocked) {
+    const typeStats = [...operationTypes.entries()]
+        .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], "ro"))
+        .map(([name, count]) => `<span><b>${escapeHtml(name)}</b> ${count}</span>`);
+    const operationalStats = [
+        `<span class="extra"><b>EXTRA</b> ${extra}</span>`,
+        `<span class="blocked"><b>Săli blocate</b> ${blocked}</span>`
+    ];
+    el.heroOperationStats.innerHTML = [...typeStats, ...operationalStats].join("");
 }
 
 function renderDailyStatus(percent, total, completed, extra) {
@@ -604,52 +607,9 @@ function renderGuardStrip(assignments) {
     `;
 }
 
-function createEmptyGuardSummary() {
-    return Object.fromEntries(GUARD_SPECIALTIES.map((specialty) => [specialty, []]));
-}
-
-function mergeGuardsIntoSummary(summary, assignments) {
-    assignments.forEach((assignment) => {
-        const specialty = normalizeGuardSpecialty(assignment.specialty);
-        if (!specialty) {
-            return;
-        }
-        const alreadyIncluded = summary[specialty].some((item) =>
-            item.personName === assignment.personName && item.line === assignment.line
-        );
-        if (!alreadyIncluded) {
-            summary[specialty].push(assignment);
-            summary[specialty].sort(compareGuardAssignments);
-        }
-    });
-}
-
 function normalizeGuardSpecialty(value) {
     const normalized = String(value || "").trim().toUpperCase();
     return GUARD_SPECIALTIES.includes(normalized) ? normalized : "";
-}
-
-function renderGuardSummaryList(guardsBySpecialty) {
-    return GUARD_SPECIALTIES.map((specialty) => {
-        const assignments = guardsBySpecialty[specialty] || [];
-        return `
-            <div class="summary-guard-row specialty-${specialty.toLowerCase()}">
-                <span class="summary-guard-specialty">${specialty}</span>
-                <div class="summary-guard-values">
-                    ${assignments.length
-                        ? assignments.map((assignment) => `
-                            <span class="summary-guard-pill">${escapeHtml(renderGuardSummaryText(assignment))}</span>
-                        `).join("")
-                        : '<span class="summary-guard-pill missing">Lipsa</span>'}
-                </div>
-            </div>
-        `;
-    }).join("");
-}
-
-function renderGuardSummaryText(assignment) {
-    const lineLabel = assignment.line ? `L${assignment.line}` : "Garda";
-    return `${lineLabel} - ${assignment.personName}`;
 }
 
 function getGuardAssignmentsForDate(date) {

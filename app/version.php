@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.16.7.11.3',
-    'release' => 'FTP V7.11.3',
+    'version' => '2026.09.16.7.12.0',
+    'release' => 'FTP V7.12.0',
     'released_at' => '2026-09-16',
-    'summary' => 'V7.11.3 corecteaza salvarea contului Dashboard in instalatiile online.',
+    'summary' => 'V7.12 reorganizeaza dashboardul salilor si centralizeaza statisticile operative in antet.',
     'changes' => [
+        'Navigarea Ieri, Astazi si Maine este afisata imediat sub antetul Programul salilor.',
+        'Bara de progres este afisata imediat sub navigarea zilelor.',
+        'Cardurile separate Medici de garda, Interventii extra si Sali blocate au fost eliminate.',
+        'Antetul afiseaza compact numarul interventiilor defalcat pe tip, numarul EXTRA si salile blocate.',
         'Contul dashboard existent este recunoscut dupa username chiar daca rolul nu fusese inca asociat.',
         'Rolul Dashboard si drepturile sale sunt completate automat in tabelele existente, fara migrare sau schimbarea structurii bazei de date.',
         'Personal si acces include filtrul Sistem / Dashboard.',
