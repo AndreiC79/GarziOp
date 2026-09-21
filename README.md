@@ -24,6 +24,31 @@ Proiectele existente `C:\xampp\htdocs\garzi` si `C:\xampp\htdocs\ProgOp` raman n
 
 Fisierul `config/config.php` nu trebuie urcat intr-un repository si nu trebuie trimis impreuna cu exporturile bazei de date.
 
+## API / MCP
+
+Schema pentru conectarea unui client MCP este publicata la `public/api/openapi.php`. Autentificarea foloseste un token Bearer creat din **Administrare > Acces API / AI**.
+
+Repartizarea medicilor ATI pe sali este expusa explicit prin:
+
+- `listAtiRoomAssignments` pentru citirea salilor, medicilor ATI activi si repartizarilor dintr-un interval;
+- `modifyAtiRoomAssignments` pentru inlocuirea medicilor unei sali intr-o anumita zi.
+
+Exemplu de corp pentru modificare:
+
+```json
+{
+  "assignments": [
+    {
+      "date": "2026-09-22",
+      "room_id": 1,
+      "person_id": 49
+    }
+  ]
+}
+```
+
+ID-urile salilor si medicilor ATI sunt returnate de `listAtiRoomAssignments`. Pentru doi medici in aceeasi sala si zi se trimit doua elemente cu aceleasi `date` si `room_id`. Modificarea necesita un token cu dreptul `progop.manage_all`.
+
 ## Directoare
 
 - `app/` - servicii PHP comune;

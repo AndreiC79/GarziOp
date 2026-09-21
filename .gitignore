@@ -11,6 +11,7 @@
 !/storage/security/.gitkeep
 /storage/recovery-request.json
 /storage/config/dashboard_operation_state.json
+/storage/config/ati_room_assignments.json
 /storage/*.log
 /storage/logs/*
 !/storage/logs/.gitkeep

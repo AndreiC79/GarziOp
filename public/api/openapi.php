@@ -15,7 +15,7 @@ $document = [
     'openapi' => '3.1.0',
     'info' => [
         'title' => 'Maternitatea Giulesti - API intern',
-        'version' => '1.0.0',
+        'version' => '1.1.1',
         'description' => 'API securizat pentru garzi, Program Operator si administrare. Foloseste un token creat din Administrare > Acces API / AI.',
     ],
     'servers' => [['url' => $server]],
@@ -69,6 +69,44 @@ $document = [
                 'operationId' => 'manageOperation',
                 'summary' => 'Adauga, modifica, sterge sau marcheaza o operatie si blocheaza/deblocheaza sali',
                 'requestBody' => ['required'=>true,'content'=>['application/json'=>['schema'=>['$ref'=>'#/components/schemas/OperationAction']]]],
+                'responses' => ['200'=>['$ref'=>'#/components/responses/JsonSuccess'],'400'=>['$ref'=>'#/components/responses/JsonError'],'401'=>['$ref'=>'#/components/responses/Unauthorized'],'403'=>['$ref'=>'#/components/responses/Forbidden']],
+            ],
+        ],
+        '/ati-room-assignments.php' => [
+            'get' => [
+                'operationId' => 'listAtiRoomAssignments',
+                'summary' => 'Citeste medicii ATI repartizati pe sali intr-un interval',
+                'description' => 'Returneaza salile active, medicii ATI activi si repartizarile curente. Valorile pot fi folosite apoi in modifyAtiRoomAssignments.',
+                'parameters' => [
+                    ['name'=>'date_from','in'=>'query','required'=>false,'schema'=>['type'=>'string','format'=>'date']],
+                    ['name'=>'date_to','in'=>'query','required'=>false,'schema'=>['type'=>'string','format'=>'date']],
+                ],
+                'responses' => ['200'=>['$ref'=>'#/components/responses/JsonSuccess'],'401'=>['$ref'=>'#/components/responses/Unauthorized'],'403'=>['$ref'=>'#/components/responses/Forbidden']],
+            ],
+            'post' => [
+                'operationId' => 'modifyAtiRoomAssignments',
+                'summary' => 'Modifica medicii ATI repartizati pe sali',
+                'description' => 'Inlocuieste repartizarea ATI pentru combinatiile data-sala trimise. Fiecare element contine un medic; maximum doua elemente pot folosi aceeasi data si sala.',
+                'requestBody' => ['required'=>true,'content'=>['application/json'=>['schema'=>[
+                    'type'=>'object',
+                    'properties'=>[
+                        'assignments'=>[
+                            'type'=>'array','minItems'=>1,'maxItems'=>100,
+                            'items'=>[
+                                'type'=>'object',
+                                'properties'=>[
+                                    'date'=>['type'=>'string','format'=>'date'],
+                                    'room_id'=>['type'=>'integer'],
+                                    'person_id'=>['type'=>'integer'],
+                                ],
+                                'required'=>['date','room_id','person_id'],
+                                'additionalProperties'=>false,
+                            ],
+                        ],
+                    ],
+                    'required'=>['assignments'],
+                    'additionalProperties'=>false,
+                ]]]],
                 'responses' => ['200'=>['$ref'=>'#/components/responses/JsonSuccess'],'400'=>['$ref'=>'#/components/responses/JsonError'],'401'=>['$ref'=>'#/components/responses/Unauthorized'],'403'=>['$ref'=>'#/components/responses/Forbidden']],
             ],
         ],

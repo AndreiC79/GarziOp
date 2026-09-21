@@ -25,6 +25,7 @@ if (PHP_SAPI !== 'cli' && session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once PROJECT_ROOT . '/app/Database.php';
 require_once PROJECT_ROOT . '/app/Auth.php';
+require_once PROJECT_ROOT . '/app/AtiRoomAssignments.php';
 
 function csrf_token(): string
 {

@@ -309,25 +309,14 @@ function legacyGuards(PDO $db, string $start, string $end): array
     return $result;
 }
 
-function legacyAtiAssignmentsPath(): string
-{
-    return dirname(__DIR__, 2) . '/storage/config/ati_room_assignments.json';
-}
-
 function legacyAllAtiAssignments(): array
 {
-    $path = legacyAtiAssignmentsPath();
-    if (!is_file($path)) return [];
-    $decoded = json_decode((string)file_get_contents($path), true);
-    return is_array($decoded['assignments'] ?? null) ? $decoded['assignments'] : [];
+    return AtiRoomAssignments::all();
 }
 
 function legacyAtiAssignments(string $start, string $end): array
 {
-    $all = legacyAllAtiAssignments();
-    $result = [];
-    foreach (dateRange($start, $end) as $date) $result[$date] = is_array($all[$date] ?? null) ? $all[$date] : [];
-    return $result;
+    return AtiRoomAssignments::between($start, $end);
 }
 
 function legacySaveAtiWeek(PDO $db, array $input): never
@@ -358,13 +347,7 @@ function legacySaveAtiWeek(PDO $db, array $input): never
         if ($cleanDay) $all[$date] = $saved[$date] = $cleanDay;
         else { unset($all[$date]); $saved[$date] = []; }
     }
-    ksort($all);
-    $directory = dirname(legacyAtiAssignmentsPath());
-    if (!is_dir($directory)) mkdir($directory, 0775, true);
-    $payload = ['format_version'=>1,'updated_at'=>date(DATE_ATOM),'updated_by'=>(int)$apiUser['id'],'assignments'=>$all];
-    if (file_put_contents(legacyAtiAssignmentsPath(), json_encode($payload, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR), LOCK_EX) === false) {
-        throw new DomainException('Planificarea ATI nu a putut fi salvata.');
-    }
+    AtiRoomAssignments::save($all, (int)$apiUser['id']);
     apiAudit($db, 'progop.ati_assignments_saved', 'ati_schedule', null, null, ['week_start'=>$weekStart,'assignments'=>$saved]);
     legacyMutationSuccess($db, array_keys($saved), 'Repartizarea ATI a fost salvata.');
 }
