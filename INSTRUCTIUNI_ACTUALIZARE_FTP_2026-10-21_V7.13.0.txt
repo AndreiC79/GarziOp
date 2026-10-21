@@ -1,0 +1,19 @@
+ACTUALIZARE V7.13.0 - PANOU NOU PENTRU SALILE DE OPERATIE
+
+1. Incarcati prin FTP continutul pachetului peste instalarea existenta.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Pachetul este cumulativ si include toate modificarile pana la V7.12.1 inclusiv.
+4. Nu exista modificari de structura a bazei de date si nu trebuie importat SQL.
+
+TESTAREA PANOURILOR:
+- autentificati-va cu un cont de tip Dashboard sala de operatii;
+- in antet, la Aspect, alegeti Clasic sau Panou nou;
+- alegerea ramane salvata numai pe monitorul/dispozitivul respectiv;
+- butonul Ecran complet extinde panoul pe tot monitorul;
+- varianta clasica ramane disponibila si poate fi reactivata oricand.
+
+PANOU NOU:
+- afiseaza simultan cele patru sali si toate operatiile zilei;
+- evidentiaza separat operatia aflata In sala, urgentele, operatiile EXTRA si operatiile efectuate;
+- pastreaza actiunile existente pentru stare, ora estimata, urgente si mutarea operatiilor;
+- reincarca automat datele la fiecare 30 de secunde cand pagina este vizibila.

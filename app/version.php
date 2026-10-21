@@ -3,11 +3,17 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.09.16.7.12.1',
-    'release' => 'FTP V7.12.1',
-    'released_at' => '2026-09-16',
-    'summary' => 'V7.12.1 ordoneaza automat operatiile dupa starea lor in sala.',
+    'version' => '2026.10.21.7.13.0',
+    'release' => 'FTP V7.13.0',
+    'released_at' => '2026-10-21',
+    'summary' => 'V7.13.0 adauga noul panou vizual al salilor, pastrand integral varianta clasica.',
     'changes' => [
+        'Contul Dashboard poate selecta intre aspectul Clasic si Panou nou, fara eliminarea variantei existente.',
+        'Alegerea panoului este memorata separat pe fiecare monitor sau dispozitiv.',
+        'Panoul nou afiseaza simultan cele patru sali intr-un layout compact, optimizat pentru monitor tactil.',
+        'Operatiile In sala sunt evidentiate prioritar, urgentele, operatiile EXTRA si cele efectuate au tratamente vizuale distincte.',
+        'Panoul nou pastreaza toate actiunile existente: stari, ora estimata, urgente si mutarea operatiilor.',
+        'Contul Dashboard poate activa modul Ecran complet, iar datele se reincarca automat la 30 de secunde.',
         'Operatia marcata In sala este mutata automat la inceputul listei salii.',
         'Operatia marcata Efectuata este mutata automat la sfarsitul listei salii.',
         'Operatiile efectuate raman la final in ordinea cronologica a finalizarii.',

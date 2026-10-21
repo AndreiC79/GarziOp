@@ -8,6 +8,7 @@ if (!$user || !in_array('progop.view', Auth::permissions($db, (int) $user['id'])
     exit;
 }
 $isOperatingRoomDashboard = Auth::hasRole($db, (int)$user['id'], 'operating_room_dashboard');
+$dashboardView = $isOperatingRoomDashboard && (string)($_GET['view'] ?? '') === 'modern' ? 'modern' : 'classic';
 if ((int)$user['must_change_password'] === 1) {
     header('Location: index.php');
     exit;
@@ -25,8 +26,11 @@ if ((int)$user['must_change_password'] === 1) {
     <title>Overview Bloc Operator</title>
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <link rel="stylesheet" href="assets/progop-overview.css?v=<?= filemtime(__DIR__ . '/assets/progop-overview.css') ?>">
+    <?php if ($dashboardView === 'modern'): ?>
+    <link rel="stylesheet" href="assets/progop-display.css?v=<?= filemtime(__DIR__ . '/assets/progop-display.css') ?>">
+    <?php endif; ?>
 </head>
-<body class="<?= $isOperatingRoomDashboard ? 'operating-room-dashboard' : '' ?>" data-operating-room-dashboard="<?= $isOperatingRoomDashboard ? '1' : '0' ?>">
+<body class="<?= $isOperatingRoomDashboard ? 'operating-room-dashboard' : '' ?><?= $dashboardView === 'modern' ? ' modern-operating-display' : '' ?>" data-operating-room-dashboard="<?= $isOperatingRoomDashboard ? '1' : '0' ?>" data-dashboard-view="<?= e($dashboardView) ?>">
     <nav class="overview-rail" aria-label="Navigare platforma">
         <a class="rail-brand" href="<?= $isOperatingRoomDashboard ? 'progop-overview.php' : 'index.php' ?>" aria-label="Pagina principala"><img src="assets/platform-icon.svg" alt=""></a>
         <?php if (!$isOperatingRoomDashboard): ?>
@@ -48,6 +52,12 @@ if ((int)$user['must_change_password'] === 1) {
             </div>
             <div class="hero-actions">
                 <div id="heroOperationStats" class="hero-operation-stats" aria-live="polite">Se calculează programul...</div>
+                <?php if ($isOperatingRoomDashboard): ?>
+                <div class="dashboard-view-controls" aria-label="Varianta panoului">
+                    <label><span>Aspect</span><select id="dashboardViewSelect"><option value="classic" <?= $dashboardView === 'classic' ? 'selected' : '' ?>>Clasic</option><option value="modern" <?= $dashboardView === 'modern' ? 'selected' : '' ?>>Panou nou</option></select></label>
+                    <button id="dashboardFullscreenBtn" class="ghost-btn" type="button">Ecran complet</button>
+                </div>
+                <?php endif; ?>
                 <button id="refreshOverviewBtn" class="secondary-btn">Reîncarcă</button>
                 <?php if (!$isOperatingRoomDashboard): ?>
                 <button id="openSchedulerBtn" class="ghost-btn">Deschide programatorul</button>

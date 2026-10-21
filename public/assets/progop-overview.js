@@ -3,6 +3,8 @@ const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content ||
 let ROOM_NAMES = ["Sala 1", "Sala 2", "Sala 3", "Sala 4"];
 const GUARD_SPECIALTIES = ["ATI", "OG", "NN"];
 const IS_OPERATING_ROOM_DASHBOARD = document.body.dataset.operatingRoomDashboard === "1";
+const DASHBOARD_VIEW = document.body.dataset.dashboardView || "classic";
+const DASHBOARD_VIEW_STORAGE_KEY = "intern-operating-room-dashboard-view";
 
 const runtimeToday = formatDate(new Date());
 const state = {
@@ -15,11 +17,24 @@ const state = {
 const el = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
+    restoreDashboardView();
     cacheElements();
     bindEvents();
     syncControls();
     await loadOverview();
+    startDashboardAutoRefresh();
 });
+
+function restoreDashboardView() {
+    if (!IS_OPERATING_ROOM_DASHBOARD) return;
+    const url = new URL(window.location.href);
+    const requestedView = url.searchParams.get("view");
+    const storedView = localStorage.getItem(DASHBOARD_VIEW_STORAGE_KEY);
+    if (!requestedView && storedView === "modern" && DASHBOARD_VIEW !== "modern") {
+        url.searchParams.set("view", "modern");
+        window.location.replace(url.toString());
+    }
+}
 
 function cacheElements() {
     el.modeDayBtn = document.getElementById("modeDayBtn");
@@ -42,6 +57,8 @@ function cacheElements() {
     el.kioskPrevDay = document.getElementById("kioskPrevDay");
     el.kioskToday = document.getElementById("kioskToday");
     el.kioskNextDay = document.getElementById("kioskNextDay");
+    el.dashboardViewSelect = document.getElementById("dashboardViewSelect");
+    el.dashboardFullscreenBtn = document.getElementById("dashboardFullscreenBtn");
 }
 
 function bindEvents() {
@@ -78,9 +95,32 @@ function bindEvents() {
     el.kioskPrevDay?.addEventListener("click", () => selectKioskDay(-1));
     el.kioskToday?.addEventListener("click", () => selectKioskDay(0));
     el.kioskNextDay?.addEventListener("click", () => selectKioskDay(1));
+    el.dashboardViewSelect?.addEventListener("change", () => {
+        const view = el.dashboardViewSelect.value === "modern" ? "modern" : "classic";
+        localStorage.setItem(DASHBOARD_VIEW_STORAGE_KEY, view);
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", view);
+        window.location.assign(url.toString());
+    });
+    el.dashboardFullscreenBtn?.addEventListener("click", async () => {
+        try {
+            if (document.fullscreenElement) await document.exitFullscreen();
+            else await document.documentElement.requestFullscreen();
+        } catch {
+            showOverviewToast("Browserul nu permite activarea automată a ecranului complet.", true);
+        }
+    });
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && el.modalHost?.children.length) closeEmergencyModal();
     });
+}
+
+function startDashboardAutoRefresh() {
+    if (!IS_OPERATING_ROOM_DASHBOARD) return;
+    window.setInterval(() => {
+        if (document.hidden || el.modalHost?.children.length) return;
+        loadOverview().catch(() => {});
+    }, 30000);
 }
 
 function syncControls() {
