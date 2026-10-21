@@ -99,7 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
 $permissions = Auth::permissions($db, (int) $user['id']);
 $isOperatingRoomDashboard = Auth::hasRole($db, (int) $user['id'], 'operating_room_dashboard');
 if ($isOperatingRoomDashboard) {
-    header('Location: progop-overview.php');
+    $dashboardView = (string)($_COOKIE['intern_dashboard_view'] ?? 'modern');
+    if (!in_array($dashboardView, ['classic', 'modern'], true)) $dashboardView = 'modern';
+    header('Location: progop-overview.php?view=' . rawurlencode($dashboardView));
     exit;
 }
 $canAccessAdmin = userHasPlatformAdminRole($db, (int) $user['id']);

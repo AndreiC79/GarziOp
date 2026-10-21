@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.10.21.7.13.0',
-    'release' => 'FTP V7.13.0',
+    'version' => '2026.10.21.7.13.1',
+    'release' => 'FTP V7.13.1',
     'released_at' => '2026-10-21',
-    'summary' => 'V7.13.0 adauga noul panou vizual al salilor, pastrand integral varianta clasica.',
+    'summary' => 'V7.13.1 deschide corect panoul ales pentru contul Dashboard.',
     'changes' => [
+        'Contul Dashboard deschide implicit Panoul nou la prima autentificare.',
+        'Alegerea Clasic sau Panou nou este pastrata si dupa iesire si autentificare ulterioara.',
         'Contul Dashboard poate selecta intre aspectul Clasic si Panou nou, fara eliminarea variantei existente.',
         'Alegerea panoului este memorata separat pe fiecare monitor sau dispozitiv.',
         'Panoul nou afiseaza simultan cele patru sali intr-un layout compact, optimizat pentru monitor tactil.',

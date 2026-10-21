@@ -1,0 +1,11 @@
+ACTUALIZARE V7.13.1 - REDIRECTIONARE CONT DASHBOARD
+
+1. Incarcati prin FTP continutul pachetului peste instalarea existenta.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Pachetul este cumulativ si include toate modificarile pana la V7.13.0 inclusiv.
+4. Nu exista modificari de structura a bazei de date si nu trebuie importat SQL.
+
+CORECTII:
+- contul Dashboard deschide implicit Panoul nou la prima autentificare;
+- alegerea Clasic sau Panou nou este pastrata dupa iesire si autentificare;
+- varianta clasica ramane disponibila permanent din selectorul Aspect.

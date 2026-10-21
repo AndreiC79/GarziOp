@@ -98,6 +98,7 @@ function bindEvents() {
     el.dashboardViewSelect?.addEventListener("change", () => {
         const view = el.dashboardViewSelect.value === "modern" ? "modern" : "classic";
         localStorage.setItem(DASHBOARD_VIEW_STORAGE_KEY, view);
+        document.cookie = `intern_dashboard_view=${view}; path=/; max-age=31536000; SameSite=Lax`;
         const url = new URL(window.location.href);
         url.searchParams.set("view", view);
         window.location.assign(url.toString());
