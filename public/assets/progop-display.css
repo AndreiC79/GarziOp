@@ -53,6 +53,7 @@
 .modern-operating-display .intervention-mini.urgent { border-left-color: var(--display-coral); background: #fff0ed; }
 .modern-operating-display .check-row strong { font-size: clamp(15px,1.2vw,20px); line-height: 1.05; }
 .modern-operating-display .operation-time-row { display: flex; align-items: center; gap: 6px; }
+.modern-operating-display .operation-time-row { display:none; }
 .modern-operating-display .operation-time-row label { max-width: 112px; }
 .modern-operating-display .operation-facts { grid-template-columns: 1fr; gap: 4px; }
 .modern-operating-display .operation-facts span { padding: 6px 7px; font-size: 12px; }
@@ -145,6 +146,9 @@
 .modern-operating-display .day-header h2 { color:#f4feff; }
 .modern-operating-display .eyebrow { color:#66e4e2; }
 .modern-operating-display .hero-operation-stats span { border-color:rgba(69,217,230,.3); background:rgba(3,55,68,.72); color:#bde7ec; }
+.modern-operating-display .hero-stat-filter { flex:0 0 auto; padding:6px 9px; border:1px solid rgba(69,217,230,.3); border-radius:999px; background:rgba(3,55,68,.72); color:#bde7ec; font-size:12px; }
+.modern-operating-display .hero-stat-filter b { color:#fff; }
+.modern-operating-display .hero-stat-filter.active { border-color:#5bf0e5; background:#087f8c; box-shadow:0 0 0 2px rgba(66,231,223,.18); }
 .modern-operating-display .hero-operation-stats b { color:#fff; }
 .modern-operating-display .dashboard-view-controls label { color:#8cdde4; }
 .modern-operating-display .dashboard-view-controls select,
@@ -180,7 +184,34 @@
 .modern-operating-display .dashboard-status-actions button[data-dashboard-status="scheduled"].active { border-color:#f09a3f; background:#d97921; color:#fff; }
 .modern-operating-display .dashboard-status-actions button[data-dashboard-status="in_room"].active { border-color:#42ddeb; background:#168fa6; color:#fff; }
 .modern-operating-display .dashboard-status-actions button[data-dashboard-status="completed"].active { border-color:#3de0a4; background:#139266; color:#fff; }
+.modern-operating-display .display-filter-link { max-width:100%; padding:0; overflow:hidden; border:0; border-radius:0; background:transparent; color:inherit; font:inherit; text-align:left; text-overflow:ellipsis; white-space:nowrap; }
+.modern-operating-display .display-filter-link:hover,
+.modern-operating-display .display-filter-link.active { color:#fff; text-decoration:underline; text-decoration-color:#47e0e4; text-underline-offset:3px; }
+.modern-operating-display .dashboard-quick-status { min-height:29px; width:100%; padding:3px 5px; border:1px solid transparent; border-radius:5px; color:#fff; font-size:10px; font-weight:900; text-transform:uppercase; }
+.modern-operating-display .dashboard-quick-status.pending { border-color:#ff795f; background:#d7442e; }
+.modern-operating-display .dashboard-quick-status.completed { border-color:#42e6aa; background:#159668; }
+.modern-operating-display.display-filter-active .intervention-mini { transition:opacity .16s ease,filter .16s ease,box-shadow .16s ease; }
+.modern-operating-display .intervention-mini.filter-dimmed { opacity:.18; filter:saturate(.35); }
+.modern-operating-display .intervention-mini.filter-match { position:relative; z-index:2; border-color:#63f0ec; box-shadow:0 0 0 2px rgba(71,228,226,.4),0 0 20px rgba(34,210,215,.24); }
 .modern-operating-display .empty-room { color:#80b9c0; }
+
+@media (min-width:1400px) {
+    .modern-operating-display .intervention-mini,
+    .modern-operating-display.display-density-full .intervention-mini {
+        display:grid;
+        grid-template-columns:minmax(92px,.8fr) minmax(145px,1.35fr) minmax(110px,.9fr);
+        align-items:center;
+        column-gap:6px;
+        min-height:49px;
+        padding-block:4px;
+    }
+    .modern-operating-display .operation-time-row,
+    .modern-operating-display .pill-row,
+    .modern-operating-display .intervention-submeta { display:none; }
+    .modern-operating-display .check-row strong,
+    .modern-operating-display .operation-facts span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .modern-operating-display .room-column-labels { grid-template-columns:.8fr 1.35fr .9fr; }
+}
 
 @media (max-width:1399px) {
     .modern-operating-display .room-column-labels { display:none; }

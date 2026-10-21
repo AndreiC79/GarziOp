@@ -11,7 +11,9 @@ const state = {
     selectedDate: runtimeToday,
     mode: "day",
     focus: "current",
-    payload: null
+    payload: null,
+    operationTypeFilter: "",
+    doctorFilter: ""
 };
 
 const el = {};
@@ -218,6 +220,8 @@ function renderOverview() {
     bindEstimatedTimes();
     bindEmergencyButtons();
     bindOperationDragAndDrop();
+    bindDisplayHighlights();
+    applyDisplayHighlights();
 }
 
 function applyDisplayDensity(days, dates) {
@@ -234,7 +238,9 @@ function applyDisplayDensity(days, dates) {
 function renderHeroOperationStats(operationTypes, extra, blocked) {
     const typeStats = [...operationTypes.entries()]
         .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], "ro"))
-        .map(([name, count]) => `<span><b>${escapeHtml(name)}</b> ${count}</span>`);
+        .map(([name, count]) => DASHBOARD_VIEW === "modern"
+            ? `<button type="button" class="hero-stat-filter ${state.operationTypeFilter === name ? "active" : ""}" data-highlight-operation-type="${escapeHtml(name)}"><b>${escapeHtml(name)}</b> ${count}</button>`
+            : `<span><b>${escapeHtml(name)}</b> ${count}</span>`);
     const operationalStats = [
         `<span class="extra"><b>EXTRA</b> ${extra}</span>`,
         `<span class="blocked"><b>Săli blocate</b> ${blocked}</span>`
@@ -312,7 +318,7 @@ function renderRoomPanel(date, roomName, roomState) {
             ${stateSafe.blocked ? `<p class="blocked-note">Sala este blocată${stateSafe.blockReason ? `: ${escapeHtml(stateSafe.blockReason)}` : ""}.</p>` : ""}
             ${stateSafe.interventions.length
                 ? stateSafe.interventions.map((item, index) => `
-                    <article class="intervention-mini status-${escapeHtml(item.operatingStatus || "scheduled")} ${item.extra ? "extra" : ""} ${item.urgent ? "urgent" : ""} ${item.extra && item.approvalState !== "approved" ? "approval-pending" : ""} ${item.completed ? "done" : ""}" draggable="${canDragOperation(item)}" data-drag-operation="${item.id}" data-source-date="${date}" data-source-room="${escapeHtml(roomName)}" data-source-position="${index + 1}" data-patient-name="${escapeHtml(item.patientName)}" data-operation-name="${escapeHtml(item.operationType || "Operație")}">
+                    <article class="intervention-mini status-${escapeHtml(item.operatingStatus || "scheduled")} ${item.extra ? "extra" : ""} ${item.urgent ? "urgent" : ""} ${item.extra && item.approvalState !== "approved" ? "approval-pending" : ""} ${item.completed ? "done" : ""}" draggable="${canDragOperation(item)}" data-drag-operation="${item.id}" data-source-date="${date}" data-source-room="${escapeHtml(roomName)}" data-source-position="${index + 1}" data-patient-name="${escapeHtml(item.patientName)}" data-operation-name="${escapeHtml(item.operationType || "Operație")}" data-operation-type="${escapeHtml(item.operationType || "Nespecificată")}" data-doctor-name="${escapeHtml(item.doctor)}">
                         <div class="check-row">
                             <strong>${escapeHtml(item.patientName)}</strong>
                             ${IS_OPERATING_ROOM_DASHBOARD ? "" : `<label class="completed-toggle">
@@ -324,7 +330,7 @@ function renderRoomPanel(date, roomName, roomState) {
                             <label><span>Ora estimată</span><input class="estimated-time-input" type="time" data-estimated-time="${item.id}" value="${escapeHtml(item.estimatedTime || "")}" ${item.completed ? "disabled" : ""}></label>
                             <span class="operation-status-label">${escapeHtml(statusLabel(item.operatingStatus))}</span>
                         </div>
-                        <div class="operation-facts"><span><b>Operație</b>${escapeHtml(item.operationType || "Nespecificată")}</span><span><b>Medic</b>${escapeHtml(item.doctor)}</span>${item.diagnostic ? `<span><b>Diagnostic</b>${escapeHtml(item.diagnostic)}</span>` : ""}</div>
+                        <div class="operation-facts"><span><b>Operație</b>${renderDisplayFilterValue("operation", item.operationType || "Nespecificată")}</span><span><b>Medic</b>${renderDisplayFilterValue("doctor", item.doctor)}</span>${item.diagnostic ? `<span><b>Diagnostic</b>${escapeHtml(item.diagnostic)}</span>` : ""}</div>
                         <div class="pill-row">
                             ${item.urgent ? `<span class="pill urgent">URGENȚĂ</span>` : ""}
                             ${item.extra ? `<span class="pill extra">${escapeHtml(item.approvalLabel || "EXTRA")}</span>` : ""}
@@ -356,6 +362,10 @@ function statusLabel(status) {
 }
 
 function renderDashboardStatusActions(item) {
+    if (DASHBOARD_VIEW === "modern") {
+        const completed = item.operatingStatus === "completed" || item.completed;
+        return `<button type="button" class="dashboard-quick-status ${completed ? "completed" : "pending"}" data-dashboard-status="${completed ? "scheduled" : "completed"}" data-operation-id="${item.id}">${completed ? "Efectuată" : "Neefectuată"}</button>`;
+    }
     const statuses = [
         ["scheduled", "Programată"],
         ["in_room", "În sală"],
@@ -365,6 +375,48 @@ function renderDashboardStatusActions(item) {
     return `<div class="dashboard-status-actions" role="group" aria-label="Starea operației">
         ${statuses.map(([status, label]) => `<button type="button" data-dashboard-status="${status}" data-operation-id="${item.id}" class="${currentStatus === status ? "active" : ""}">${label}</button>`).join("")}
     </div>`;
+}
+
+function renderDisplayFilterValue(kind, value) {
+    const safeValue = escapeHtml(value || "Nespecificat");
+    if (DASHBOARD_VIEW !== "modern") return safeValue;
+    const attribute = kind === "doctor" ? "data-highlight-doctor" : "data-highlight-operation-type";
+    return `<button type="button" class="display-filter-link" ${attribute}="${safeValue}">${safeValue}</button>`;
+}
+
+function bindDisplayHighlights() {
+    if (DASHBOARD_VIEW !== "modern") return;
+    document.querySelectorAll("[data-highlight-operation-type]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const value = button.dataset.highlightOperationType || "";
+            state.operationTypeFilter = state.operationTypeFilter === value ? "" : value;
+            state.doctorFilter = "";
+            applyDisplayHighlights();
+        });
+    });
+    document.querySelectorAll("[data-highlight-doctor]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const value = button.dataset.highlightDoctor || "";
+            state.doctorFilter = state.doctorFilter === value ? "" : value;
+            state.operationTypeFilter = "";
+            applyDisplayHighlights();
+        });
+    });
+}
+
+function applyDisplayHighlights() {
+    if (DASHBOARD_VIEW !== "modern") return;
+    const activeValue = state.doctorFilter || state.operationTypeFilter;
+    document.body.classList.toggle("display-filter-active", Boolean(activeValue));
+    document.querySelectorAll("[data-drag-operation]").forEach((card) => {
+        const matches = !activeValue
+            || (state.doctorFilter && card.dataset.doctorName === state.doctorFilter)
+            || (state.operationTypeFilter && card.dataset.operationType === state.operationTypeFilter);
+        card.classList.toggle("filter-match", Boolean(activeValue && matches));
+        card.classList.toggle("filter-dimmed", Boolean(activeValue && !matches));
+    });
+    document.querySelectorAll("[data-highlight-operation-type]").forEach((button) => button.classList.toggle("active", button.dataset.highlightOperationType === state.operationTypeFilter));
+    document.querySelectorAll("[data-highlight-doctor]").forEach((button) => button.classList.toggle("active", button.dataset.highlightDoctor === state.doctorFilter));
 }
 
 function bindOperationDragAndDrop() {
@@ -563,8 +615,9 @@ function bindDashboardStatusControls() {
             const card = button.closest("[data-drag-operation]");
             const currentStatus = card?.classList.contains("status-completed") ? "completed" : "";
             const nextStatus = button.dataset.dashboardStatus;
-            if (nextStatus === "completed" && !window.confirm("Marchezi operația ca efectuată?")) return;
-            if (currentStatus === "completed" && nextStatus !== "completed"
+            const isQuickToggle = button.classList.contains("dashboard-quick-status");
+            if (!isQuickToggle && nextStatus === "completed" && !window.confirm("Marchezi operația ca efectuată?")) return;
+            if (!isQuickToggle && currentStatus === "completed" && nextStatus !== "completed"
                 && !window.confirm("Operația este marcată efectuată. Revii la o stare activă?")) return;
             button.disabled = true;
             try {

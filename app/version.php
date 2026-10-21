@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.10.21.7.13.3',
-    'release' => 'LAB V7.13.3',
+    'version' => '2026.10.21.7.13.4',
+    'release' => 'LAB V7.13.4',
     'released_at' => '2026-10-21',
-    'summary' => 'V7.13.3 aplica Panoului nou o directie vizuala inspirata de monitoarele clinice.',
+    'summary' => 'V7.13.4 stabilizeaza layoutul clinic si adauga evidentierea interactiva a operatiilor.',
     'changes' => [
+        'Panoul clinic ramane compact dupa mutarea operatiilor intre sali si nu afiseaza ora estimata.',
+        'Statusul este un singur buton rosu Neefectuata sau verde Efectuata, cu schimbare directa in ambele sensuri.',
+        'Click pe un tip de interventie din antet evidentiaza toate operatiile de acel tip.',
+        'Click pe numele medicului evidentiaza toate operatiile acelui medic din programul zilei.',
         'Panoul nou foloseste o tema petrol cu contrast ridicat, coloane delimitate si aspect de monitor clinic.',
         'Fiecare sala afiseaza numarul operatiilor si o bara proportionala de incarcare.',
         'Cardurile aglomerate sunt organizate in coloanele Pacienta, Operatie si medic, Status.',
