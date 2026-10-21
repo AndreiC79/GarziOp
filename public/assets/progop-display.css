@@ -44,7 +44,7 @@
 .modern-operating-display .room-head { position: sticky; top: 0; z-index: 3; margin: -10px -10px 8px; padding: 10px; border-radius: 17px 17px 10px 10px; background: linear-gradient(135deg,#123e48,#176872); color: #fff; }
 .modern-operating-display .room-head h3 { font-size: 21px; }
 .modern-operating-display .room-head .room-meta, .modern-operating-display .room-head .room-ati { color: #d6efea; }
-.modern-operating-display .emergency-room-btn { background: var(--display-coral); color: #fff; }
+.modern-operating-display .emergency-room-btn { align-self:center; min-height:32px; padding:6px 10px; border:1px solid rgba(255,146,119,.72); border-radius:6px; background:rgba(194,69,48,.82); color:#fff; box-shadow:none; }
 .modern-operating-display .intervention-mini { margin-top: 7px; padding: 10px; gap: 7px; border: 0; border-left: 6px solid #86a9b4; border-radius: 12px; background: #f7faf9; box-shadow: 0 3px 12px rgba(18,57,65,.08); }
 .modern-operating-display .intervention-mini.status-in_room,
 .modern-operating-display .intervention-mini.status-in_progress { border-left-color: #1776a3; background: #e7f5fb; box-shadow: 0 0 0 2px rgba(23,118,163,.18),0 8px 22px rgba(23,118,163,.15); }
@@ -124,4 +124,64 @@
     .modern-operating-display .hero-operation-stats { grid-column: 1/-1; }
     .modern-operating-display .daily-status-bar { grid-template-columns: auto auto 1fr; }
     .modern-operating-display .daily-emoji-slider { grid-column: 1/-1; }
+}
+
+/* Directia vizuala tip monitor clinic folosita exclusiv de Panoul nou. */
+.modern-operating-display {
+    --display-ink: #e8fbff;
+    --display-sea: #48d9e8;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 58% 115%, rgba(0,190,190,.18), transparent 44%),
+        linear-gradient(145deg,#062b39 0%,#073848 45%,#041f2d 100%);
+    color: var(--display-ink);
+}
+.modern-operating-display .overview-rail { background:rgba(3,31,41,.88); border-right:1px solid rgba(66,213,226,.24); box-shadow:8px 0 30px rgba(0,0,0,.2); }
+.modern-operating-display .overview-hero,
+.modern-operating-display .toolbar,
+.modern-operating-display .daily-status-bar,
+.modern-operating-display .day-panel { background:rgba(3,42,54,.78); border:1px solid rgba(65,213,229,.28); box-shadow:0 12px 35px rgba(0,12,20,.24); backdrop-filter:blur(12px); }
+.modern-operating-display .overview-hero h1,
+.modern-operating-display .day-header h2 { color:#f4feff; }
+.modern-operating-display .eyebrow { color:#66e4e2; }
+.modern-operating-display .hero-operation-stats span { border-color:rgba(69,217,230,.3); background:rgba(3,55,68,.72); color:#bde7ec; }
+.modern-operating-display .hero-operation-stats b { color:#fff; }
+.modern-operating-display .dashboard-view-controls label { color:#8cdde4; }
+.modern-operating-display .dashboard-view-controls select,
+.modern-operating-display .ghost-btn,
+.modern-operating-display .secondary-btn { border:1px solid rgba(75,218,230,.38); background:rgba(5,69,83,.78); color:#e9fdff; }
+.modern-operating-display .segmented-btn { border:1px solid rgba(73,204,220,.26); background:rgba(8,57,70,.76); color:#ccecf0; }
+.modern-operating-display .segmented-btn.active { background:#12a9bd; color:#fff; box-shadow:0 0 18px rgba(23,205,218,.2); }
+.modern-operating-display .daily-status-bar strong,
+.modern-operating-display .daily-status-bar p { color:#d8f5f4; }
+.modern-operating-display .daily-emoji-track { background:rgba(163,218,219,.2); }
+.modern-operating-display .day-progress { background:rgba(30,194,175,.16); color:#64e1cd; }
+.modern-operating-display .guard-strip { border-color:rgba(61,204,218,.22); background:rgba(3,50,64,.78); }
+.modern-operating-display .guard-strip-title { color:#78dfe5; }
+.modern-operating-display .room-panel { border:1px solid rgba(52,199,218,.38); background:rgba(3,36,48,.62); box-shadow:inset 0 0 30px rgba(7,116,131,.08),0 10px 24px rgba(0,15,24,.22); }
+.modern-operating-display .room-head { border-bottom:1px solid rgba(72,220,231,.3); background:linear-gradient(135deg,rgba(4,57,71,.96),rgba(3,44,57,.94)); }
+.modern-operating-display .room-head h3 { letter-spacing:.02em; text-transform:uppercase; }
+.modern-operating-display .room-head h3 span { color:#9ed9de; font-size:.62em; font-weight:700; }
+.modern-operating-display .room-load { position:relative; width:min(210px,100%); height:18px; margin:5px 0 3px; overflow:hidden; border:1px solid rgba(52,224,222,.5); border-radius:4px; background:rgba(1,24,32,.72); }
+.modern-operating-display .room-load i { position:absolute; inset:0 auto 0 0; background:linear-gradient(90deg,#12a9bd,#39e1d0); box-shadow:0 0 13px rgba(47,226,211,.38); }
+.modern-operating-display .room-load b { position:relative; z-index:1; display:block; padding:1px 5px; color:#f6ffff; font-size:9px; line-height:14px; letter-spacing:.04em; text-transform:uppercase; }
+.modern-operating-display .room-panel:first-child .room-load i { background:linear-gradient(90deg,#f05a42,#ff9a4f); box-shadow:0 0 13px rgba(245,102,65,.4); }
+.modern-operating-display .room-column-labels { display:grid; grid-template-columns:.8fr 1.35fr 1.45fr; gap:6px; padding:4px 8px 2px; color:#70cbd3; font-size:8px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+.modern-operating-display .intervention-mini { border:1px solid rgba(53,191,211,.3); border-left:4px solid #309eb0; background:rgba(5,54,67,.76); box-shadow:none; color:#eafeff; }
+.modern-operating-display .intervention-mini:hover { border-color:rgba(87,225,235,.68); background:rgba(7,69,82,.9); }
+.modern-operating-display .intervention-mini.status-in_room,
+.modern-operating-display .intervention-mini.status-in_progress { border-left-color:#49e2ff; background:rgba(9,103,124,.8); box-shadow:0 0 0 1px rgba(78,227,246,.4),0 0 18px rgba(41,202,225,.16); }
+.modern-operating-display .intervention-mini.done { border-left-color:#37d69a; background:rgba(6,78,67,.7); opacity:.76; }
+.modern-operating-display .intervention-mini.extra { border-left-color:#ff9d47; background:rgba(101,55,18,.58); }
+.modern-operating-display .intervention-mini.urgent { border-left-color:#ff6047; background:rgba(105,35,28,.7); }
+.modern-operating-display .operation-facts span { border:0; background:rgba(0,20,29,.22); color:#b8dce0; }
+.modern-operating-display .operation-facts b { color:#65d4dd; }
+.modern-operating-display .dashboard-status-actions button { border-color:rgba(104,199,210,.38); background:rgba(5,44,56,.9); color:#ccecf0; }
+.modern-operating-display .dashboard-status-actions button[data-dashboard-status="scheduled"].active { border-color:#f09a3f; background:#d97921; color:#fff; }
+.modern-operating-display .dashboard-status-actions button[data-dashboard-status="in_room"].active { border-color:#42ddeb; background:#168fa6; color:#fff; }
+.modern-operating-display .dashboard-status-actions button[data-dashboard-status="completed"].active { border-color:#3de0a4; background:#139266; color:#fff; }
+.modern-operating-display .empty-room { color:#80b9c0; }
+
+@media (max-width:1399px) {
+    .modern-operating-display .room-column-labels { display:none; }
 }

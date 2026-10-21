@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.10.21.7.13.2',
-    'release' => 'FTP V7.13.2',
+    'version' => '2026.10.21.7.13.3',
+    'release' => 'LAB V7.13.3',
     'released_at' => '2026-10-21',
-    'summary' => 'V7.13.2 adapteaza automat densitatea panoului pentru zilele cu multe interventii.',
+    'summary' => 'V7.13.3 aplica Panoului nou o directie vizuala inspirata de monitoarele clinice.',
     'changes' => [
+        'Panoul nou foloseste o tema petrol cu contrast ridicat, coloane delimitate si aspect de monitor clinic.',
+        'Fiecare sala afiseaza numarul operatiilor si o bara proportionala de incarcare.',
+        'Cardurile aglomerate sunt organizate in coloanele Pacienta, Operatie si medic, Status.',
+        'Starile Programata, In sala si Efectuata au coduri cromatice distincte, fara pierderea controalelor tactile.',
         'Panoul nou masoara automat cea mai aglomerata sala si compacteaza cardurile la 7, respectiv 10 interventii.',
         'La 10 interventii intr-o sala, toate operatiile zilei raman vizibile simultan fara scroll pe monitorul Full HD.',
         'Modul compact pastreaza numele pacientei, operatia, medicul, starea si controalele tactile.',

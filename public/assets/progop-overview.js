@@ -293,18 +293,22 @@ function renderDayPanel(date, day) {
 function renderRoomPanel(date, roomName, roomState) {
     const stateSafe = roomState || { blocked: false, blockReason: "", interventions: [] };
     const completed = stateSafe.interventions.filter((item) => item.completed).length;
+    const busiestRoom = Math.max(1, Number(document.body.dataset.busiestRoom || stateSafe.interventions.length || 1));
+    const roomLoad = Math.min(100, Math.round((stateSafe.interventions.length / busiestRoom) * 100));
     const canAddEmergency = date === runtimeToday && Boolean(state.payload?.capabilities?.canCreate) && !stateSafe.blocked;
     const atiNames = getAtiNames(date, roomName);
     return `
         <section class="room-panel ${stateSafe.blocked ? "blocked" : ""}" data-drop-date="${date}" data-drop-room="${escapeHtml(roomName)}">
             <div class="room-head">
                 <div>
-                    <h3>${escapeHtml(roomName)}</h3>
+                    <h3>${escapeHtml(roomName)} <span>(${stateSafe.interventions.length} operații)</span></h3>
+                    <div class="room-load" role="meter" aria-label="Încărcare ${escapeHtml(roomName)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${roomLoad}"><i style="width:${roomLoad}%"></i><b>Încărcare ${roomLoad}%</b></div>
                     <p class="room-meta">${completed}/${stateSafe.interventions.length} efectuate</p>
                     <p class="room-ati"><b>ATI</b> ${atiNames.length ? atiNames.map(escapeHtml).join(" · ") : "Nerepartizat"}</p>
                 </div>
                 ${canAddEmergency ? `<button type="button" class="emergency-room-btn" data-emergency-date="${date}" data-emergency-room="${escapeHtml(roomName)}">+ Adaugă urgență</button>` : ""}
             </div>
+            <div class="room-column-labels" aria-hidden="true"><span>Pacientă</span><span>Operație / medic</span><span>Status</span></div>
             ${stateSafe.blocked ? `<p class="blocked-note">Sala este blocată${stateSafe.blockReason ? `: ${escapeHtml(stateSafe.blockReason)}` : ""}.</p>` : ""}
             ${stateSafe.interventions.length
                 ? stateSafe.interventions.map((item, index) => `
