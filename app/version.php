@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 const APP_RELEASE = [
     'version' => '2026.10.21.7.13.4',
-    'release' => 'LAB V7.13.4',
+    'release' => 'FTP V7.13.4',
     'released_at' => '2026-10-21',
     'summary' => 'V7.13.4 stabilizeaza layoutul clinic si adauga evidentierea interactiva a operatiilor.',
     'changes' => [
