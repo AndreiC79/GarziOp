@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 const APP_RELEASE = [
-    'version' => '2026.10.21.7.13.1',
-    'release' => 'FTP V7.13.1',
+    'version' => '2026.10.21.7.13.2',
+    'release' => 'FTP V7.13.2',
     'released_at' => '2026-10-21',
-    'summary' => 'V7.13.1 deschide corect panoul ales pentru contul Dashboard.',
+    'summary' => 'V7.13.2 adapteaza automat densitatea panoului pentru zilele cu multe interventii.',
     'changes' => [
+        'Panoul nou masoara automat cea mai aglomerata sala si compacteaza cardurile la 7, respectiv 10 interventii.',
+        'La 10 interventii intr-o sala, toate operatiile zilei raman vizibile simultan fara scroll pe monitorul Full HD.',
+        'Modul compact pastreaza numele pacientei, operatia, medicul, starea si controalele tactile.',
         'Contul Dashboard deschide implicit Panoul nou la prima autentificare.',
         'Alegerea Clasic sau Panou nou este pastrata si dupa iesire si autentificare ulterioara.',
         'Contul Dashboard poate selecta intre aspectul Clasic si Panou nou, fara eliminarea variantei existente.',

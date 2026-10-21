@@ -1,0 +1,12 @@
+ACTUALIZARE V7.13.2 - PANOU ADAPTIV PENTRU ZILE AGLOMERATE
+
+1. Incarcati prin FTP continutul pachetului peste instalarea existenta.
+2. Nu suprascrieti config/config.php si directoarele cu date generate din storage.
+3. Pachetul este cumulativ si include toate modificarile pana la V7.13.1 inclusiv.
+4. Nu exista modificari de structura a bazei de date si nu trebuie importat SQL.
+
+PANOU NOU:
+- densitatea cardurilor se adapteaza automat dupa numarul de operatii din sala cea mai aglomerata;
+- la 7 operatii se activeaza modul compact;
+- la 10 operatii se activeaza modul complet, proiectat sa pastreze toate operatiile pe un ecran Full HD;
+- datele complete raman disponibile in aplicatie si in varianta clasica.

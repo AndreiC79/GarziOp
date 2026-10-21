@@ -208,6 +208,7 @@ function renderOverview() {
     });
 
     const progressPercent = total ? Math.round((completed / total) * 100) : 0;
+    applyDisplayDensity(days, dates);
     renderDailyStatus(progressPercent, total, completed, extra);
     renderHeroOperationStats(operationTypes, extra, blocked);
 
@@ -217,6 +218,17 @@ function renderOverview() {
     bindEstimatedTimes();
     bindEmergencyButtons();
     bindOperationDragAndDrop();
+}
+
+function applyDisplayDensity(days, dates) {
+    if (DASHBOARD_VIEW !== "modern") return;
+    let busiestRoom = 0;
+    dates.forEach((date) => ROOM_NAMES.forEach((room) => {
+        busiestRoom = Math.max(busiestRoom, days[date]?.rooms?.[room]?.interventions?.length || 0);
+    }));
+    document.body.classList.toggle("display-density-busy", busiestRoom >= 7);
+    document.body.classList.toggle("display-density-full", busiestRoom >= 10);
+    document.body.dataset.busiestRoom = String(busiestRoom);
 }
 
 function renderHeroOperationStats(operationTypes, extra, blocked) {

@@ -62,6 +62,56 @@
 .modern-operating-display .dashboard-status-actions button { min-height: 44px; padding: 6px 3px; font-size: 11px; }
 .modern-operating-display .overview-toast { font-size: 17px; }
 
+/* Zilele aglomerate se compacteaza automat pentru a pastra toate salile pe un singur ecran. */
+.modern-operating-display.display-density-busy .overview-hero { min-height: 78px; padding-block: 10px; }
+.modern-operating-display.display-density-busy .overview-hero h1 { font-size: clamp(23px,2.2vw,34px); }
+.modern-operating-display.display-density-busy .eyebrow { margin-bottom: 3px; }
+.modern-operating-display.display-density-busy .toolbar { padding-block: 6px; }
+.modern-operating-display.display-density-busy .kiosk-day-navigation button { min-height: 38px; padding-block: 6px; }
+.modern-operating-display.display-density-busy .daily-status-bar { padding-block: 6px; }
+.modern-operating-display.display-density-busy .day-panel { padding: 8px; }
+.modern-operating-display.display-density-busy .day-header { margin-bottom: 4px; }
+.modern-operating-display.display-density-busy .guard-strip { margin-bottom: 5px; padding-block: 4px; }
+.modern-operating-display.display-density-busy .rooms-overview-grid { gap: 6px; }
+.modern-operating-display.display-density-busy .room-panel { padding: 7px; }
+.modern-operating-display.display-density-busy .room-head { margin: -7px -7px 4px; padding: 7px 9px; }
+.modern-operating-display.display-density-busy .room-head h3 { font-size: 18px; }
+.modern-operating-display.display-density-busy .room-ati { font-size: 10px; }
+.modern-operating-display.display-density-busy .intervention-mini { margin-top: 4px; padding: 5px 7px; gap: 3px; border-left-width: 4px; border-radius: 9px; }
+.modern-operating-display.display-density-busy .check-row strong { font-size: 14px; }
+.modern-operating-display.display-density-busy .operation-time-row label { max-width: 92px; font-size: 9px; }
+.modern-operating-display.display-density-busy .estimated-time-input { min-height: 27px; padding: 2px 4px; font-size: 11px; }
+.modern-operating-display.display-density-busy .operation-status-label { padding: 4px 6px; font-size: 9px; }
+.modern-operating-display.display-density-busy .operation-facts { grid-template-columns: 1fr 1fr; gap: 3px; }
+.modern-operating-display.display-density-busy .operation-facts span { padding: 3px 5px; font-size: 10px; line-height: 1.15; }
+.modern-operating-display.display-density-busy .pill-row,
+.modern-operating-display.display-density-busy .intervention-submeta { display: none; }
+.modern-operating-display.display-density-busy .dashboard-status-actions { gap: 3px; }
+.modern-operating-display.display-density-busy .dashboard-status-actions button { min-height: 29px; padding: 2px; border-width: 1px; border-radius: 8px; font-size: 9px; }
+
+.modern-operating-display.display-density-full .daily-status-bar p { display: none; }
+.modern-operating-display.display-density-full .daily-status-bar { grid-template-columns: auto auto minmax(260px,1fr); }
+.modern-operating-display.display-density-full .daily-emoji-slider { grid-column: 3; }
+.modern-operating-display.display-density-full .day-header .intervention-submeta { display: block; }
+.modern-operating-display.display-density-full .operation-time-row { display: none; }
+.modern-operating-display.display-density-full .intervention-mini { padding-block: 4px; }
+.modern-operating-display.display-density-full .dashboard-status-actions button { min-height: 27px; }
+
+@media (min-width: 1400px) {
+    .modern-operating-display.display-density-full .intervention-mini {
+        display: grid;
+        grid-template-columns: minmax(92px,.8fr) minmax(145px,1.35fr) minmax(165px,1.45fr);
+        align-items: center;
+        column-gap: 6px;
+        min-height: 49px;
+    }
+    .modern-operating-display.display-density-full .check-row { min-width: 0; }
+    .modern-operating-display.display-density-full .check-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .modern-operating-display.display-density-full .operation-facts { min-width: 0; }
+    .modern-operating-display.display-density-full .operation-facts span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .modern-operating-display.display-density-full .dashboard-status-actions { min-width: 0; }
+}
+
 @media (min-width: 1800px) {
     .modern-operating-display .overview-shell { padding-left: 82px; }
     .modern-operating-display .room-panel { padding: 13px; }
